@@ -9,7 +9,7 @@ import {
 
 function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
   return (
-    <div className="w-full h-full flex flex-col justify-start px-12 md:px-16 lg:px-20 py-8 md:py-12 overflow-y-auto">
+    <div className="w-full h-full flex flex-col justify-start px-12 md:px-16 lg:px-20 py-8 md:py-12 overflow-y-auto" style={{ padding: '5px' }}>
       <div className="max-w-7xl mx-auto w-full space-y-8 flex-1 flex flex-col">
         {/* Title - Always present */}
         <div className="text-center mb-8">
@@ -22,6 +22,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
         <div className="flex-1 flex flex-col justify-center space-y-8">
           {/* Content bullets - only for slides WITHOUT side-by-side layout */}
           {content && content.length > 0 && 
+           !title.includes("Lessons Learned Getting Started") &&
            !title.includes("ReAct vs Tool-Selecting") && 
            !title.includes("MCP Tools + LangGraph") &&
            !title.includes("RAG Path") &&
@@ -72,8 +73,64 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
             </div>
           )}
           
-          {/* Bullets and Code - side by side for slides 5-9 */}
-          {(title.includes("ReAct vs Tool-Selecting") || 
+          {/* Diagram and Bullets - side by side for slide 3 */}
+          {title.includes("Lessons Learned Getting Started") && content && content.length > 0 && diagram && !code && !codeTabs ? (
+            <div className="w-full flex gap-8 items-start">
+              {/* Diagram - left side */}
+              <div className="w-1/2 flex items-center justify-center">
+                <img 
+                  src={diagram} 
+                  alt={`Diagram for ${title}`}
+                  className="w-full h-auto rounded-lg border border-gray-600 shadow-lg"
+                  style={{ maxHeight: '60vh', objectFit: 'contain' }}
+                />
+              </div>
+              
+              {/* Bullets - right side */}
+              <div className="w-1/2" style={{ paddingLeft: '60px' }}>
+                {content.map((item, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-start"
+                    style={{ 
+                      marginBottom: '40px',
+                      paddingLeft: '20px',
+                      paddingRight: '20px'
+                    }}
+                  >
+                    <div style={{ 
+                      width: '28px', 
+                      flexShrink: 0, 
+                      display: 'flex', 
+                      justifyContent: 'flex-start',
+                      paddingTop: '8px'
+                    }}>
+                      <span style={{ 
+                        fontSize: '28px', 
+                        fontWeight: 'bold',
+                        color: '#007acc',
+                        lineHeight: '1'
+                      }}>
+                        •
+                      </span>
+                    </div>
+                    <span style={{ 
+                      fontSize: '28px',
+                      lineHeight: '1.4',
+                      color: '#cccccc',
+                      flex: 1,
+                      marginLeft: '20px'
+                    }}>
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : 
+          
+          /* Bullets and Code - side by side for slides 5-9 */
+          (title.includes("ReAct vs Tool-Selecting") || 
             title.includes("MCP Tools + LangGraph") ||
             title.includes("RAG Path") ||
             title.includes("Workflow Path") ||
@@ -136,10 +193,19 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
             </div>
           ) : 
           
-          /* Code and Diagram - side by side if both present */
+          /* Diagram and Code - side by side if both present */
           (code || codeTabs) && diagram ? (
             <div className="w-full flex gap-8 items-start">
-              {/* Code block - left side */}
+              {/* Diagram - left side */}
+              <div className="w-1/2 flex items-center justify-center">
+                <img 
+                  src={diagram} 
+                  alt={`Diagram for ${title}`}
+                  className="w-full h-auto rounded-lg border border-gray-600 shadow-lg"
+                  style={{ maxHeight: '60vh', objectFit: 'contain' }}
+                />
+              </div>
+              {/* Code block - right side */}
               <div className="w-1/2">
                 {codeTabs && codeTabs.length > 0 ? (
                   <TabbedCodeBlock tabs={codeTabs} title="Implementation" />
@@ -150,15 +216,6 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                     title="Code Example"
                   />
                 ) : null}
-              </div>
-              {/* Diagram - right side */}
-              <div className="w-1/2 flex items-center justify-center">
-                <img 
-                  src={diagram} 
-                  alt={`Diagram for ${title}`}
-                  className="w-full h-auto rounded-lg border border-gray-600 shadow-lg"
-                  style={{ maxHeight: '60vh', objectFit: 'contain' }}
-                />
               </div>
             </div>
           ) : (
@@ -212,8 +269,6 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
 }
 
 export default function SlideDeck() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   const slides: SlideProps[] = [
     slide1,
     slide2, 
@@ -227,17 +282,26 @@ export default function SlideDeck() {
     slide10
   ];
 
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    const newSlide = (currentSlide + 1) % slides.length;
+    setCurrentSlide(newSlide);
+    // updateURL(newSlide); // Temporarily disabled
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    const newSlide = (currentSlide - 1 + slides.length) % slides.length;
+    setCurrentSlide(newSlide);
+    // updateURL(newSlide); // Temporarily disabled
   };
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
+    // updateURL(index); // Temporarily disabled
   };
+
+
 
   // Keyboard navigation
   useEffect(() => {
@@ -246,11 +310,11 @@ export default function SlideDeck() {
         case 'ArrowRight':
         case ' ':
           e.preventDefault();
-          setCurrentSlide((prev) => (prev + 1) % slides.length);
+          nextSlide();
           break;
         case 'ArrowLeft':
           e.preventDefault();
-          setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+          prevSlide();
           break;
         case 'p':
         case 'P':
@@ -262,7 +326,7 @@ export default function SlideDeck() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [slides.length]);
+  }, [currentSlide, slides.length]);
 
   return (
     <div className="h-screen w-full overflow-hidden" style={{ backgroundColor: 'var(--vscode-bg)', color: 'var(--vscode-text)' }}>

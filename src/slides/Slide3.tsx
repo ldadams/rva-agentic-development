@@ -8,5 +8,6 @@ export const slide3: SlideProps = {
     "Guards & timeouts: stop runaway loops, enforce determinism",
     "Human-in-loop edges: confirm risky actions",
     "Structured logs: enable debugging & replay"
-  ]
+  ],
+  diagram: "/diagrams/state_graph_llm_decisions.svg"
 };

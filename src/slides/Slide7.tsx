@@ -8,42 +8,49 @@ export const slide7: SlideProps = {
     "LangGraph ToolNode handles MCP resource access", 
     "Grounded responses with resource citations"
   ],
-  code: `# RAG with MCP Server at https://localhost/mcp
+  code: `# RAG Knowledge Search with MCP
 
-from mcp import ClientSession, HttpTransport
-import json
+from langchain_mcp_adapters import MultiServerMCPClient
+from langchain_core.messages import HumanMessage
+import asyncio
 
-# Connect to org MCP server
-mcp_transport = HttpTransport("https://localhost/mcp")
+# MCP servers for knowledge sources
+knowledge_servers = {
+    "internal_docs": {
+        "command": "python",
+        "args": ["docs_search_server.py"],
+        "transport": "stdio"
+    },
+    "adr_system": {
+        "url": "https://adr.yourorg.com/mcp",
+        "transport": "sse" 
+    }
+}
 
-async def search_org_knowledge(query: str) -> str:
-    """Search org knowledge via MCP server at https://localhost/mcp"""
+async def rag_knowledge_search():
+    """Demonstrate RAG with MCP knowledge servers."""
     
-    async with ClientSession(mcp_transport) as client:
-        # Use MCP server's search_documentation tool
-        search_result = await client.call_tool("search_documentation", {
-            "query": query,
-            "include_adrs": True,
-            "include_services": True,
-            "max_results": 10
+    async with MultiServerMCPClient(knowledge_servers) as client:
+        # Get knowledge search tools
+        knowledge_tools = client.get_tools()
+        print(f"Knowledge tools available: {[t.name for t in knowledge_tools]}")
+        
+        # Create RAG agent
+        model = ChatOpenAI(model="gpt-4o", openai_api_key=os.environ["OPENAI_API_KEY"])
+        rag_agent = create_react_agent(
+            model=model,
+            tools=knowledge_tools,
+            prompt="Search internal knowledge and provide detailed answers with citations."
+        )
+        
+        # Test knowledge search
+        result = rag_agent.invoke({
+            "messages": [HumanMessage(content="What are the security requirements for our API gateway?")]
         })
         
-        # Get full content for top results
-        detailed_results = []
-        for doc in search_result["documents"][:3]:
-            content = await client.read_resource(doc["uri"])
-            detailed_results.append({
-                "uri": doc["uri"],
-                "title": doc["title"],
-                "snippet": content[:300] + "...",
-                "relevance": doc["score"]
-            })
-        
-        return json.dumps(detailed_results, indent=2)
+        return result["messages"][-1].content
 
-# MCP server provides unified access to:
-# - docs:// resources (documentation)
-# - adr:// resources (architecture decisions)  
-# - service:// resources (service catalog)`,
+# Knowledge sources automatically accessible via MCP
+# Agent provides grounded answers with proper citations`,
   note: "MCP resources provide org-specific knowledge access"
 };

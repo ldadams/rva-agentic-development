@@ -42,44 +42,57 @@ Classification:"""`,
     },
     {
       filename: "mcp_agent_setup.py",
-      code: `# MCP Agent Setup with LangGraph
+      code: `# Real MCP Agent Setup with Multiple Servers
 
 from langchain_openai import ChatOpenAI
-from mcp import ClientSession, StdioServerParameters
-from langchain_mcp_adapters.tools import load_mcp_tools
+from langchain_mcp_adapters import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
-from langgraph.graph import StateGraph, START, END
+from langchain_core.messages import HumanMessage
 import os
-from dotenv import load_dotenv
+import asyncio
 
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-model = ChatOpenAI(model="gpt-4o")
+# Configure MCP servers for your org
+client_servers = {
+    "documentation": {
+        "command": "python",
+        "args": ["docs_server.py"],  # Your org docs MCP server
+        "transport": "stdio",
+    },
+    "services": {
+        "url": "https://localhost:8000/mcp",  # Service catalog API
+        "transport": "sse",
+    },
+    "workflow": {
+        "command": "node", 
+        "args": ["workflow_server.js"],  # ADR/team tools
+        "transport": "stdio"
+    }
+}
 
-async def setup_agent_with_mcp_tools():
-    """Setup agent with MCP tools for org-specific workflows."""
-    
-    # Connect to your MCP server (assuming it's running)
-    async with ClientSession(StdioServerParameters(
-        command="python", 
-        args=["org_tools_server.py"],
-        name="OrgTools"
-    )) as client:
-        
-        # Load MCP tools automatically
-        mcp_tools = await load_mcp_tools(client)
-        
-        # Create agent with MCP tools
-        agent = create_react_agent(
-            model, 
-            mcp_tools,
-            state_modifier=INTENT_CLASSIFIER_PROMPT
-        )
-        
-        return agent
+async def get_org_mcp_tools():
+    """Load all org MCP tools from multiple servers."""
+    async with MultiServerMCPClient(client_servers) as client:
+        tools = client.get_tools()
+        print(f"Loaded {len(tools)} org tools from {len(client_servers)} servers")
+        return tools
 
-# Usage: agent handles both classification and tool execution
-# MCP tools registered automatically from server`,
+# Initialize model and get tools
+model = ChatOpenAI(model="gpt-4o", openai_api_key=os.environ["OPENAI_API_KEY"])
+tools = asyncio.run(get_org_mcp_tools())
+
+# Create agent with intent classification and MCP tools
+agent_executor = create_react_agent(
+    model=model,
+    tools=tools,
+    prompt=INTENT_CLASSIFIER_PROMPT
+)
+
+# Test the agent with a workflow request
+result = agent_executor.invoke({
+    "messages": [HumanMessage(content="Who owns the auth service and what are the risks in ADR-123?")]
+})
+
+print(result["messages"][-1].content)`,
       language: "python"
     }
   ],

@@ -68,7 +68,11 @@ export default function TabbedCodeBlock({ tabs, title = 'Code' }: TabbedCodeBloc
                   borderRightColor: 'var(--vscode-border)',
                   borderBottomColor: activeTab === index ? 'var(--vscode-accent)' : 'transparent',
                   borderBottomWidth: '2px',
-                  borderBottomStyle: 'solid'
+                  borderBottomStyle: 'solid',
+                  paddingRight: '1.5rem',
+                  paddingLeft: '1.5rem',
+                  cursor: 'pointer',
+                  fontWeight: activeTab === index ? '600' : '400',
                 }}
                 onMouseEnter={(e) => {
                   if (activeTab !== index) {

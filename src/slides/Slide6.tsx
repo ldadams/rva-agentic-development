@@ -44,77 +44,95 @@ async def connect_to_org_mcp_server():
     },
     {
       filename: "register_tools.py",
-      code: `# Register MCP Tools from https://localhost/mcp
+      code: `# Production MCP Setup with Multiple Org Servers
 
 from langchain_openai import ChatOpenAI
-from mcp import ClientSession, HttpTransport
-from langchain_mcp_adapters.tools import load_mcp_tools
+from langchain_mcp_adapters import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
+from langchain_core.messages import HumanMessage
+import asyncio
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-model = ChatOpenAI(model="gpt-4o")
+# Production MCP server configuration
+org_mcp_servers = {
+    "docs": {
+        "url": "https://docs.yourorg.com/mcp",
+        "transport": "sse",
+        "headers": {"Authorization": f"Bearer {os.environ['ORG_API_KEY']}"}
+    },
+    "services": {
+        "command": "python",
+        "args": ["service_catalog_server.py"],
+        "transport": "stdio",
+        "env": {"SERVICE_DB_URL": os.environ["SERVICE_DB_URL"]}
+    },
+    "adr": {
+        "url": "https://adr.yourorg.com/mcp", 
+        "transport": "sse"
+    }
+}
 
-async def setup_agent_with_mcp_tools():
-    """Setup agent with org MCP server running on https://localhost/mcp"""
+async def setup_production_agent():
+    """Setup production agent with all org MCP servers."""
     
-    # Connect to org MCP server at https://localhost/mcp
-    mcp_transport = HttpTransport("https://localhost/mcp")
-    
-    async with ClientSession(mcp_transport) as client:
-        # Load all org tools automatically from MCP server
-        mcp_tools = await load_mcp_tools(client)
+    # Load tools from all org servers
+    async with MultiServerMCPClient(org_mcp_servers) as client:
+        org_tools = client.get_tools()
+        print(f"Loaded {len(org_tools)} tools from {len(org_mcp_servers)} org servers")
         
-        print(f"Loaded {len(mcp_tools)} tools from https://localhost/mcp")
-        for tool in mcp_tools:
+        # List available tools
+        for tool in org_tools:
             print(f"  - {tool.name}: {tool.description}")
-        
-        # Create agent with all org MCP tools
-        agent = create_react_agent(
-            model, 
-            mcp_tools,
-            state_modifier="You are an org workflow assistant with access to internal tools."
-        )
-        
-        return agent
-
-# MCP server at https://localhost/mcp provides:
-# search_documentation, get_service_ownership, analyze_adr_risks, etc.`,
+    
+    # Create production agent
+    model = ChatOpenAI(model="gpt-4o", openai_api_key=os.environ["OPENAI_API_KEY"])
+    
+    agent = create_react_agent(
+        model=model,
+        tools=org_tools,
+        prompt="You are an org workflow assistant with access to docs, services, and ADRs."
+    )
+    
+    return agent`,
       language: "python"
     },
     {
-      filename: "graph_setup.py",
-      code: `# Build LangGraph with MCP tools
-workflow = StateGraph(DevState)
+      filename: "agent_usage.py",
+      code: `# Using the MCP Agent in Production
 
-# Add nodes
-workflow.add_node("classify_intent", classify_intent_node)
-workflow.add_node("select_tool", select_tool_node)
-workflow.add_node("execute_tools", tool_node)  # ToolNode handles MCP calls
-workflow.add_node("format_response", format_response_node)
+import asyncio
+from langchain_core.messages import HumanMessage
 
-# Define edges
-workflow.add_edge(START, "classify_intent")
-workflow.add_conditional_edges(
-    "classify_intent",
-    route_guard,
-    {"knowledge": "select_tool", "workflow": "select_tool"}
-)
-workflow.add_edge("select_tool", "execute_tools")
-workflow.add_edge("execute_tools", "format_response") 
-workflow.add_edge("format_response", END)
+async def main():
+    # Setup agent with all org MCP servers
+    agent = await setup_production_agent()
+    
+    # Example 1: Knowledge request (routes to docs/ADR search)
+    knowledge_result = agent.invoke({
+        "messages": [HumanMessage(content="How does our authentication system work?")]
+    })
+    print("Knowledge query result:", knowledge_result["messages"][-1].content)
+    
+    # Example 2: Workflow request (routes to service catalog)
+    workflow_result = agent.invoke({
+        "messages": [HumanMessage(content="Who owns the payment service and what's their Slack channel?")]
+    })
+    print("Workflow query result:", workflow_result["messages"][-1].content)
+    
+    # Example 3: Complex multi-tool request
+    complex_result = agent.invoke({
+        "messages": [HumanMessage(content="Analyze ADR-156 risks and find affected service owners")]
+    })
+    print("Complex query result:", complex_result["messages"][-1].content)
 
-# Compile with MCP tool integration
-app = workflow.compile()
+# Run the examples
+if __name__ == "__main__":
+    asyncio.run(main())
 
-# Example usage:
-# result = await app.ainvoke({
-#     "prompt": "Who owns the auth service?",
-#     "budget_calls": 3,
-#     "trace_id": "req-123"
-# })`,
+# Agent automatically:
+# 1. Classifies intent (knowledge vs workflow)
+# 2. Routes to appropriate MCP server
+# 3. Executes tools and returns structured results`,
       language: "python"
     }
   ],

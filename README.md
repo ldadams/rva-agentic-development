@@ -40,6 +40,28 @@ open test-slides.html
 | `P` | Print presentation |
 | Click arrows | Navigate slides |
 | Click dots | Jump to specific slide |
+| **URL routing** | **Direct slide access via URLs** |
+
+## 🔗 URL Routing
+
+Each slide is now accessible via URL hash based on the slide title:
+
+- `#lessons-learned-building-agent--agentic-developer-tooling`
+- `#why-agents-beyond-copilot`
+- `#lessons-learned-getting-started`
+- `#intent--route-workflow-vs-rag`
+- `#react-vs-tool-selecting-prompt`
+- `#mcp-tools--langgraph-integration`
+- `#rag-path-knowledge-lookup`
+- `#workflow-path-org-specific`
+- `#pitfalls--debugging`
+- `#takeaways`
+
+### Features:
+- **Direct linking**: Share specific slides via URL
+- **Browser navigation**: Back/forward buttons work
+- **Bookmarkable**: Save and return to specific slides
+- **SEO friendly**: URL reflects slide content
 
 ## 📊 Presentation Content
 
