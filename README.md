@@ -1,48 +1,73 @@
 # Agent & Agentic Developer Tooling - Presentation
 
-A clean, minimal slide deck presentation built with React and Tailwind CSS.
+A clean, minimal slide deck presentation built with React and Tailwind CSS, optimized for projector visibility.
 
-## Features
+## 🚀 Quick Start
 
-- **Keyboard Navigation**: Use arrow keys or spacebar to navigate slides
-- **Mouse Navigation**: Click navigation arrows or slide indicators
-- **Print Support**: Press 'P' to open print dialog for handouts
-- **Projector Optimized**: Large text, high contrast, dark theme for visibility
-
-## Running the Presentation
-
+**Option 1: Use Pre-built Version (Recommended)**
 ```bash
-npm install
-npm run dev
+# Open the built version directly
+open build/index.html
 ```
 
-Then open http://localhost:5173 in your browser.
+**Option 2: Development Mode (Requires Node.js 20.19+)**
+```bash
+npm install
+npm run build  # Build the presentation
+npm run dev    # Start dev server (if Node.js version is compatible)
+```
 
-## Navigation
+**Option 3: Static Test**
+```bash
+# Open the test version
+open test-slides.html
+```
 
-- **Arrow Keys**: ← / → to navigate between slides
-- **Spacebar**: Next slide
-- **P Key**: Print presentation
-- **Mouse**: Click navigation arrows or slide indicators
+## ✨ Features
 
-## Slides Content
+- **🎯 Projector Optimized**: Large text (5xl-7xl headlines), high contrast, dark theme
+- **⌨️ Keyboard Navigation**: Arrow keys, spacebar, 'P' for print
+- **🖱️ Mouse Navigation**: Click arrows or slide indicators
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile
+- **🎨 Clean Styling**: Professional appearance with smooth transitions
 
-The presentation covers:
-1. Introduction to Agent & Agentic Developer Tooling
-2. Interactive Opener
-3. Graphs vs ReAct (Mental Model)
-4. Lessons Learned (Pitfalls & Guardrails)
-5. Mini State Graph Implementation
-6. MCP/RAG Integration
-7. Debugging with LLMs
-8. Architecture Examples
-9. Usage Patterns & Best Practices
-10. Getting Started Guide
-11. Summary & Call to Action
+## 🎮 Navigation
 
-## Technology Stack
+| Key/Action | Function |
+|------------|----------|
+| `→` or `Space` | Next slide |
+| `←` | Previous slide |
+| `P` | Print presentation |
+| Click arrows | Navigate slides |
+| Click dots | Jump to specific slide |
 
-- React 19
-- TypeScript
-- Tailwind CSS
-- Vite
+## 📊 Presentation Content
+
+**12 Slides covering practical agent development:**
+
+1. **Introduction** - Overview and focus areas
+2. **Interactive Opener** - Audience engagement questions
+3. **Graphs vs ReAct** - Mental models and trade-offs
+4. **Lessons Learned** - Pitfalls and guardrails
+5. **Mini State Graph** - LangGraph Python implementation
+6. **MCP/RAG Integration** - Code examples and patterns
+7. **Debugging with LLMs** - Troubleshooting techniques
+8. **CI/CD Hygiene** - Larger workflow example
+9. **Agent Accountability** - Usage patterns and responsibility
+10. **Getting Started** - Practical first steps
+11. **Summary** - Key takeaways and call to action
+
+## 🛠️ Technology Stack
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling and responsiveness
+- **Vite** - Build tooling
+- **Pure CSS Animations** - Smooth transitions
+
+## 📝 Notes
+
+- **Node.js Version**: Development requires 20.19+ or 22.12+
+- **Pre-built Version**: Available in `/build` directory for immediate use
+- **Projector Ready**: Optimized typography and contrast for presentations
+- **Print Friendly**: Press 'P' for printer-optimized view

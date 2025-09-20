@@ -7,14 +7,22 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "npm run build && npx serve dist -p 3000 -s",
+    "start": "npx serve dist -p 3000 -s",
+    "go": "npm run build && echo '🚀 Built successfully! Starting server...' && npx serve dist -p 3000 -s",
+    "validate": "echo '📋 Opening slide structure validation...' && open validate-slides.html",
+    "test-build": "npm run build && echo '✅ Build successful! Test files:' && echo '   - Open test-validation.html to check formatting' && echo '   - Run: npm run start' && echo '   - Then visit: http://localhost:3000'"
   },
   "dependencies": {
+    "prismjs": "^1.30.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/prismjs": "^1.26.5",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
