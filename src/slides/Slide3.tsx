@@ -9,5 +9,6 @@ export const slide3: SlideProps = {
     "Human-in-loop edges: confirm risky actions",
     "Structured logs: enable debugging & replay"
   ],
-  diagram: "/diagrams/state_graph_llm_decisions.svg"
+  diagram: "/diagrams/state_graph_llm_decisions.svg",
+  note: "State graphs provide reliability and observability for agent workflows"
 };

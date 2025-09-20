@@ -5,7 +5,7 @@ export const slide7: SlideProps = {
   title: "RAG Path (Knowledge Lookup)",
   content: [
     "MCP resources: docs, ADRs, service catalog",
-    "LangGraph ToolNode handles MCP resource access", 
+    "create_react_agent integrates MCP tools automatically", 
     "Grounded responses with resource citations"
   ],
   code: `# RAG Knowledge Search with MCP
@@ -52,5 +52,5 @@ async def rag_knowledge_search():
 
 # Knowledge sources automatically accessible via MCP
 # Agent provides grounded answers with proper citations`,
-  note: "MCP resources provide org-specific knowledge access"
+  note: "RAG with MultiServerMCPClient • Grounded answers from org knowledge"
 };

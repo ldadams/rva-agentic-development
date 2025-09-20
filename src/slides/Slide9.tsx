@@ -57,5 +57,5 @@ Return prioritized fix list.
       language: "python"
     }
   ],
-  note: "Start small • Add observability • Use LLMs to debug your agents"
+  note: "Essential guardrails for production agents • LLM-assisted debugging patterns"
 };

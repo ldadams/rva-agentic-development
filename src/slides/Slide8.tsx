@@ -127,5 +127,5 @@ async def generate_cross_team_update(topic: str, affected_teams: List[str]) -> s
       language: "python"
     }
   ],
-  note: "MCP tools enable complex org-specific workflows"
+  note: "Enterprise MCP workflows • ADR analysis, ownership, team coordination"
 };

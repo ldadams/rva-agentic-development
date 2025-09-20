@@ -41,61 +41,52 @@ Classification:"""`,
       language: "python"
     },
     {
-      filename: "mcp_agent_setup.py",
-      code: `# Real MCP Agent Setup with Multiple Servers
+      filename: "routing_logic.py",
+      code: `# Simple Deterministic Routing Logic
 
+from typing import TypedDict, Literal
 from langchain_openai import ChatOpenAI
-from langchain_mcp_adapters import MultiServerMCPClient
-from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import HumanMessage
-import os
-import asyncio
 
-# Configure MCP servers for your org
-client_servers = {
-    "documentation": {
-        "command": "python",
-        "args": ["docs_server.py"],  # Your org docs MCP server
-        "transport": "stdio",
-    },
-    "services": {
-        "url": "https://localhost:8000/mcp",  # Service catalog API
-        "transport": "sse",
-    },
-    "workflow": {
-        "command": "node", 
-        "args": ["workflow_server.js"],  # ADR/team tools
-        "transport": "stdio"
+class DevState(TypedDict):
+    user_prompt: str
+    intent: Literal["knowledge", "workflow"]
+    route_decision: str
+
+async def classify_and_route(user_prompt: str) -> DevState:
+    """Single LLM call to classify intent and route deterministically."""
+    
+    model = ChatOpenAI(model="gpt-4o")
+    
+    # Step 1: Get LLM classification
+    response = await model.ainvoke(INTENT_CLASSIFIER_PROMPT.format(user_prompt=user_prompt))
+    intent = response.content.strip().lower()
+    
+    # Step 2: Deterministic routing (no LLM needed)
+    def route_guard(intent: str) -> str:
+        if intent == "knowledge":
+            return "rag_path"      # → Search docs, ADRs, service catalog
+        elif intent == "workflow":
+            return "workflow_path" # → Execute org-specific actions
+        else:
+            return "clarification_needed"
+    
+    route = route_guard(intent)
+    
+    return {
+        "user_prompt": user_prompt,
+        "intent": intent,
+        "route_decision": route
     }
-}
 
-async def get_org_mcp_tools():
-    """Load all org MCP tools from multiple servers."""
-    async with MultiServerMCPClient(client_servers) as client:
-        tools = client.get_tools()
-        print(f"Loaded {len(tools)} org tools from {len(client_servers)} servers")
-        return tools
-
-# Initialize model and get tools
-model = ChatOpenAI(model="gpt-4o", openai_api_key=os.environ["OPENAI_API_KEY"])
-tools = asyncio.run(get_org_mcp_tools())
-
-# Create agent with intent classification and MCP tools
-agent_executor = create_react_agent(
-    model=model,
-    tools=tools,
-    prompt=INTENT_CLASSIFIER_PROMPT
-)
-
-# Test the agent with a workflow request
-result = agent_executor.invoke({
-    "messages": [HumanMessage(content="Who owns the auth service and what are the risks in ADR-123?")]
-})
-
-print(result["messages"][-1].content)`,
+# Example usage:
+# result = await classify_and_route("Who owns the auth service?")
+# → {"intent": "workflow", "route_decision": "workflow_path"}
+#
+# result = await classify_and_route("How does our auth system work?") 
+# → {"intent": "knowledge", "route_decision": "rag_path"}`,
       language: "python"
     }
   ],
   diagram: "/diagrams/dark_prompt_intent_route.svg",
-  note: "Proper MCP registration + clear prompt separation"
+  note: "Single classification call + deterministic routing prevents loops"
 };

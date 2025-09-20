@@ -4,137 +4,135 @@ import type { SlideProps } from '../types';
 export const slide6: SlideProps = {
   title: "MCP Tools + LangGraph Integration",
   content: [
-    "Register MCP resources and tools with LangGraph:",
-    "ToolNode automatically handles MCP tool execution",
-    "Structured tool calls with proper error handling"
+    "MultiServerMCPClient connects to multiple org servers",
+    "LLM prompt output specifies which tool to call",
+    "ToolNode executes the selected MCP tool automatically"
   ],
   codeTabs: [
     {
       filename: "mcp_server_tools.py",
-      code: `# MCP Server Running on https://localhost/mcp
-# Provides org-specific tools for documentation, services, and ADRs
+      code: `# Simple MCP Tool Example
 
-from mcp import ClientSession, HttpTransport
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool
 import json
 
-# Connect to MCP server at https://localhost/mcp
-mcp_transport = HttpTransport("https://localhost/mcp")
+# Create MCP server instance
+app = Server("org-tools")
 
-async def connect_to_org_mcp_server():
-    """Connect to the organization's MCP server."""
+@app.tool("get_service_ownership")
+async def get_service_ownership(service_name: str) -> str:
+    """Find who owns a service and their contact information."""
     
-    async with ClientSession(mcp_transport) as client:
-        # List available tools from server
-        tools = await client.list_tools()
-        print(f"Available org tools: {[tool.name for tool in tools]}")
-        
-        # List available resources
-        resources = await client.list_resources()
-        print(f"Available resources: {[r.uri for r in resources]}")
-        
-        return client
+    # This would connect to your service catalog
+    service_data = {
+        "service": service_name,
+        "owner": "alice@yourorg.com",
+        "team": "platform-team", 
+        "slack_channel": "#platform-support",
+        "oncall": "bob@yourorg.com",
+        "repo": f"https://github.com/yourorg/{service_name}",
+        "runbook": f"https://docs.yourorg.com/services/{service_name}"
+    }
+    
+    return json.dumps(service_data, indent=2)
 
-# Example tools available on https://localhost/mcp:
-# - search_documentation(query)
-# - get_service_ownership(service_name) 
-# - analyze_adr_risks(adr_id)
-# - find_team_contacts(team_name)
-# - get_oncall_rotation(service)`,
+@app.tool("search_documentation") 
+async def search_docs(query: str) -> str:
+    """Search internal documentation and ADRs."""
+    
+    # This would search your docs/wiki/ADR system
+    results = [
+        {"title": "Auth Service Architecture", "url": "https://docs.yourorg.com/auth"},
+        {"title": "ADR-123: JWT Implementation", "url": "https://adr.yourorg.com/123"}
+    ]
+    
+    return json.dumps(results, indent=2)
+
+# Run MCP server: python mcp_server_tools.py
+if __name__ == "__main__":
+    stdio_server(app)`,
       language: "python"
     },
     {
-      filename: "register_tools.py",
-      code: `# Production MCP Setup with Multiple Org Servers
+      filename: "tool_selection_prompt.py",
+      code: `# Tool Selection Prompt Output Example
 
-from langchain_openai import ChatOpenAI
+TOOL_SELECTION_PROMPT = """
+You are a tool selector. Choose exactly ONE tool for this request.
+
+Available tools from MultiServerMCPClient:
+- search_documentation(query): Search internal docs and ADRs
+- get_service_ownership(service_name): Find service owner and team info  
+- analyze_adr_risks(adr_id): Analyze architecture decision risks
+
+User request: {user_input}
+
+Return ONLY the tool call in this format:
+{{"tool": "tool_name", "args": {{"param": "value"}}}}
+"""
+
+# Example LLM output for "Who owns the auth service?":
+llm_output = '''
+{
+  "tool": "get_service_ownership",
+  "args": {
+    "service_name": "auth-service"
+  }
+}
+'''
+
+# This structured output is then passed to ToolNode for execution
+import json
+selected_tool = json.loads(llm_output)
+print(f"Selected tool: {selected_tool['tool']}")
+print(f"Tool args: {selected_tool['args']}")`,
+      language: "python"
+    },
+    {
+      filename: "toolnode_execution.py",
+      code: `# ToolNode Executes Selected MCP Tool
+
+from langgraph.prebuilt import ToolNode
 from langchain_mcp_adapters import MultiServerMCPClient
-from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import HumanMessage
-import asyncio
-import os
+import json
 
-# Production MCP server configuration
-org_mcp_servers = {
-    "docs": {
-        "url": "https://docs.yourorg.com/mcp",
-        "transport": "sse",
-        "headers": {"Authorization": f"Bearer {os.environ['ORG_API_KEY']}"}
-    },
-    "services": {
-        "command": "python",
-        "args": ["service_catalog_server.py"],
-        "transport": "stdio",
-        "env": {"SERVICE_DB_URL": os.environ["SERVICE_DB_URL"]}
-    },
-    "adr": {
-        "url": "https://adr.yourorg.com/mcp", 
-        "transport": "sse"
-    }
+# 1. MultiServerMCPClient loads tools from org servers
+async with MultiServerMCPClient(org_mcp_servers) as client:
+    mcp_tools = client.get_tools()
+
+# 2. ToolNode handles tool execution
+tool_node = ToolNode(mcp_tools)
+
+# 3. LLM selected this tool (from previous tab):
+selected_tool_call = {
+    "tool": "get_service_ownership",
+    "args": {"service_name": "auth-service"}
 }
 
-async def setup_production_agent():
-    """Setup production agent with all org MCP servers."""
-    
-    # Load tools from all org servers
-    async with MultiServerMCPClient(org_mcp_servers) as client:
-        org_tools = client.get_tools()
-        print(f"Loaded {len(org_tools)} tools from {len(org_mcp_servers)} org servers")
-        
-        # List available tools
-        for tool in org_tools:
-            print(f"  - {tool.name}: {tool.description}")
-    
-    # Create production agent
-    model = ChatOpenAI(model="gpt-4o", openai_api_key=os.environ["OPENAI_API_KEY"])
-    
-    agent = create_react_agent(
-        model=model,
-        tools=org_tools,
-        prompt="You are an org workflow assistant with access to docs, services, and ADRs."
-    )
-    
-    return agent`,
-      language: "python"
-    },
-    {
-      filename: "agent_usage.py",
-      code: `# Using the MCP Agent in Production
+# 4. ToolNode executes the MCP tool automatically
+class State(TypedDict):
+    tool_calls: List[dict]
+    tool_results: List[str]
 
-import asyncio
-from langchain_core.messages import HumanMessage
+# Simulate tool execution
+state = {
+    "tool_calls": [selected_tool_call],
+    "tool_results": []
+}
 
-async def main():
-    # Setup agent with all org MCP servers
-    agent = await setup_production_agent()
-    
-    # Example 1: Knowledge request (routes to docs/ADR search)
-    knowledge_result = agent.invoke({
-        "messages": [HumanMessage(content="How does our authentication system work?")]
-    })
-    print("Knowledge query result:", knowledge_result["messages"][-1].content)
-    
-    # Example 2: Workflow request (routes to service catalog)
-    workflow_result = agent.invoke({
-        "messages": [HumanMessage(content="Who owns the payment service and what's their Slack channel?")]
-    })
-    print("Workflow query result:", workflow_result["messages"][-1].content)
-    
-    # Example 3: Complex multi-tool request
-    complex_result = agent.invoke({
-        "messages": [HumanMessage(content="Analyze ADR-156 risks and find affected service owners")]
-    })
-    print("Complex query result:", complex_result["messages"][-1].content)
+# ToolNode execution
+result_state = await tool_node.ainvoke(state)
 
-# Run the examples
-if __name__ == "__main__":
-    asyncio.run(main())
+# 5. ToolNode returns structured results:
+print("Tool execution result:", result_state["tool_results"][0])
+# Output: {"service": "auth-service", "owner": "alice@org.com", 
+#          "team": "platform", "slack": "#platform-team"}
 
-# Agent automatically:
-# 1. Classifies intent (knowledge vs workflow)
-# 2. Routes to appropriate MCP server
-# 3. Executes tools and returns structured results`,
+# Flow: Prompt → Tool Selection → ToolNode → MCP Server → Results`,
       language: "python"
     }
   ],
-  note: "ToolNode + MCP integration = powerful org-specific agents"
+  note: "Production MCP setup with multiple servers • Automatic tool discovery"
 };

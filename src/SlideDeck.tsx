@@ -23,7 +23,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
           {/* Content bullets - only for slides WITHOUT side-by-side layout */}
           {content && content.length > 0 && 
            !title.includes("Lessons Learned Getting Started") &&
-           !title.includes("ReAct vs Tool-Selecting") && 
+           !title.includes("State Graph vs ReAct") && 
            !title.includes("MCP Tools + LangGraph") &&
            !title.includes("RAG Path") &&
            !title.includes("Workflow Path") &&
@@ -130,7 +130,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
           ) : 
           
           /* Bullets and Code - side by side for slides 5-9 */
-          (title.includes("ReAct vs Tool-Selecting") || 
+          (title.includes("State Graph vs ReAct") || 
             title.includes("MCP Tools + LangGraph") ||
             title.includes("RAG Path") ||
             title.includes("Workflow Path") ||
@@ -181,7 +181,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
               {/* Code block - right side */}
               <div className="w-1/2">
                 {codeTabs && codeTabs.length > 0 ? (
-                  <TabbedCodeBlock tabs={codeTabs} title="ReAct vs Tool-Select" />
+                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="State Graph vs ReAct" />
                 ) : code ? (
                   <CodeBlock 
                     code={code} 
@@ -208,7 +208,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
               {/* Code block - right side */}
               <div className="w-1/2">
                 {codeTabs && codeTabs.length > 0 ? (
-                  <TabbedCodeBlock tabs={codeTabs} title="Implementation" />
+                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" />
                 ) : code ? (
                   <CodeBlock 
                     code={code} 
@@ -226,7 +226,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                 <div className="w-full flex justify-center">
                   <div className="w-full max-w-6xl">
                     {codeTabs && codeTabs.length > 0 ? (
-                      <TabbedCodeBlock tabs={codeTabs} title="Implementation" />
+                      <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" />
                     ) : code ? (
                       <CodeBlock 
                         code={code} 

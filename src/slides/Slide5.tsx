@@ -1,18 +1,18 @@
 import type { SlideProps } from '../types';
 
-// Slide 5 — ReAct vs Tool-Selecting Prompt
+// Slide 5 — State Graph vs ReAct
 export const slide5: SlideProps = {
-  title: "ReAct vs Tool-Selecting Prompt", 
+  title: "State Graph vs ReAct", 
   content: [
-    "What is ReAct Agent",
+    "Why not ReAct?",
     "ReAct: model plans every step → hidden state, tool loops",
     "Better: single LLM call selects tool, graph executes deterministically"
   ],
   layout: 'bullets-left-code-right',
   codeTabs: [
     {
-      filename: "react_prompt.py",
-      code: `# ReAct Prompt (loop-prone)
+      filename: "react_approach.py",
+      code: `# ReAct Approach (loop-prone)
 REACT_PROMPT = """
 You are an assistant. Think step-by-step and use tools as needed until done.
 
@@ -35,8 +35,8 @@ Continue until you have a complete answer.
       language: "python"
     },
     {
-      filename: "tool_select_prompt.py",
-      code: `# Tool-Select Prompt (structured)  
+      filename: "state_graph_approach.py",
+      code: `# State Graph Approach (structured)  
 TOOL_SELECT_PROMPT = """
 You are a workflow router. Choose EXACTLY ONE tool.
 
@@ -63,5 +63,5 @@ Return STRICT JSON:
       language: "python"
     }
   ],
-  note: "Structured tool selection → predictable execution paths"
+  note: "Structured prompts prevent ReAct loops • Side-by-side: concepts + code"
 };

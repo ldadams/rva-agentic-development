@@ -7,5 +7,6 @@ export const slide2: SlideProps = {
     "Copilot ≠ Workflow agent → can't see your ADRs, Jira, Slack, or service catalog",
     "Pain points: manual reviews, ownership confusion, cross-team updates", 
     "Agentic approach: org-specific workflows become faster & more reliable"
-  ]
+  ],
+  note: "Agents solve organizational pain points that autocomplete can't address"
 };
