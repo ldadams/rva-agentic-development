@@ -1,19 +1,29 @@
 import React, { useMemo, useState, useEffect } from "react";
 
 /**
- * Minimal slide deck with keyboard navigation
- * - Keyboard: ←/→ to navigate, P to print
- * - Clean styling with Tailwind
+ * Slide deck component for the agentic development talk.
+ *
+ * This version keeps the simple horizontal sliding behaviour but tweaks the
+ * styling for improved readability and separation between slides. Each
+ * slide is presented on its own page by translating the slide container
+ * along the X‑axis. Use the left/right arrow keys or click the on‑screen
+ * arrows to navigate. Press `P` to open your browser's print dialog.
  */
 
+// A small wrapper for code blocks. We use a dark background and bright
+// foreground to make code highly visible on projectors.
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <pre className="whitespace-pre-wrap text-sm md:text-base bg-gray-50 text-gray-900 rounded-lg p-6 overflow-auto border border-gray-200 font-mono leading-relaxed">
-      <code>{children}</code>
-    </pre>
+    <div className="bg-gray-900 rounded-xl p-8 my-8 border-2 border-gray-600 shadow-2xl">
+      <pre className="whitespace-pre-wrap text-lg md:text-xl text-green-400 font-mono leading-relaxed overflow-auto">
+        <code>{children}</code>
+      </pre>
+    </div>
   );
 }
 
+// The basic slide component optimized for projector visibility
+// with large text, generous spacing, and high contrast colors.
 function Slide({
   title,
   bullets,
@@ -26,43 +36,36 @@ function Slide({
   note?: string;
 }) {
   return (
-    <div className="w-full h-full flex flex-col justify-start p-12 md:p-16 lg:p-20 overflow-y-auto">
-      <div className="max-w-4xl mx-auto w-full space-y-8">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8">
+    <div className="w-full h-full flex flex-col justify-center p-16 md:p-20 lg:p-24 overflow-y-auto">
+      <div className="max-w-6xl mx-auto w-full space-y-12">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-12 tracking-tight">
           {title}
         </h1>
-
         {bullets && (
-          <ul className="list-disc pl-8 text-xl md:text-2xl leading-relaxed space-y-4 text-gray-700">
+          <ul className="list-disc pl-12 text-2xl md:text-3xl leading-relaxed space-y-6 text-gray-200">
             {bullets.map((b, i) => (
-              <li key={i} className="mb-3">
-                {b}
-              </li>
+              <li key={i} className="mb-4">{b}</li>
             ))}
           </ul>
         )}
-
         {code && <Code>{code}</Code>}
-
-        {note && (
-          <p className="text-base text-gray-500 mt-6 italic">
-            {note}
-          </p>
-        )}
+        {note && <p className="text-xl text-gray-400 mt-8 italic">{note}</p>}
       </div>
     </div>
   );
 }
 
 export default function SlideDeck() {
+  // Define the contents of each slide. Feel free to add or remove
+  // entries here; the navigation logic will automatically update.
   const slides = useMemo(
     () => [
       {
         title: "Lessons Learned Building Agent & Agentic Developer Tooling",
         bullets: [
           "Graphs vs ReAct • Pitfalls • MCP/RAG integrations • Debugging with LLMs",
-          "Mini state graph + tool integration + copy-paste prompt",
-          "Focus: practical, developer-first agent workflows",
+          "Mini state graph + tool integration + copy‑paste prompt",
+          "Focus: practical, developer‑first agent workflows",
         ],
         note: "Use ←/→ to navigate • Press P to print",
       },
@@ -80,20 +83,20 @@ export default function SlideDeck() {
         bullets: [
           "ReAct: Think → Act → Observe → Repeat; simple to prototype; great for search/QA.",
           "Risks: recursive tool loops, hidden state in prompts, hard to enforce invariants.",
-          "State Graphs: explicit nodes & edges; typed state; deterministic routing; per-node retries/timeouts; strong observability.",
-          "Rule of thumb: start with small graphs for workflows; use ReAct for ad-hoc pokes.",
+          "State Graphs: explicit nodes & edges; typed state; deterministic routing; per‑node retries/timeouts; strong observability.",
+          "Rule of thumb: start with small graphs for workflows; use ReAct for ad‑hoc pokes.",
         ],
       },
       {
         title: "Lessons Learned (Pitfalls & Guardrails)",
         bullets: [
-          "Terminate & budget: cap tool calls, set global deadline, per-node timeouts.",
-          "Idempotency: make tools repeatable; provide dry-run modes.",
+          "Terminate & budget: cap tool calls, set global deadline, per‑node timeouts.",
+          "Idempotency: make tools repeatable; provide dry‑run modes.",
           "Deterministic routing via guards; don’t let the LLM pick every hop.",
           "Structured state (narrow, typed) + early redaction of secrets.",
-          "Observability-by-default: correlation IDs, state diffs, retries, exceptions.",
-          "Human-in-the-loop edges for risky actions (merge/deploy).",
-          "Test surfaces: unit-test nodes; contract-test tools; golden logs.",
+          "Observability‑by‑default: correlation IDs, state diffs, retries, exceptions.",
+          "Human‑in‑the‑loop edges for risky actions (merge/deploy).",
+          "Test surfaces: unit‑test nodes; contract‑test tools; golden logs.",
         ],
       },
       {
@@ -205,21 +208,21 @@ async def node_research(state: DevState) -> DevState:
       {
         title: "Debugging State Graphs with LLMs",
         bullets: [
-          "Structured logs make routing bugs and ReAct-style loops visible.",
-          "Ask LLMs to find: missing guards, non-idempotent tools, flaky steps.",
+          "Structured logs make routing bugs and ReAct‑style loops visible.",
+          "Ask LLMs to find: missing guards, non‑idempotent tools, flaky steps.",
           "Redact secrets; keep logs JSONL/NDJSON for easy pasting.",
         ],
         code: `You are an expert in agentic state machines (LangGraph) and tool reliability.
-Given the execution log, identify: (1) nodes that should be guarded, (2) non-idempotent tools,
+Given the execution log, identify: (1) nodes that should be guarded, (2) non‑idempotent tools,
 (3) missing termination conditions, (4) slow/flaky steps, and (5) concrete routing or retry policies to add.
-Return a prioritized fix list with code-level changes.
+Return a prioritized fix list with code‑level changes.
 
 <LOG>
 {paste NDJSON log here}
 </LOG>`,
       },
       {
-        title: "30-sec Tour: Bigger Graph (CI/CD Hygiene)",
+        title: "30‑sec Tour: Bigger Graph (CI/CD Hygiene)",
         bullets: [
           "plan → research → implement → test → security_scan → pr → review_gate → merge → deploy_canary → verify → rollback_or_promote",
           "If security_scan fails → suggest remediations; loop to implement (cap N).",
@@ -229,7 +232,7 @@ Return a prioritized fix list with code-level changes.
       {
         title: "Agents vs Autocomplete • Accountability",
         bullets: [
-          "Fully agentic (AMP Code-style) vs non-agentic copilots.",
+          "Fully agentic (AMP Code‑style) vs non‑agentic copilots.",
           "Senior vs junior usage patterns; guardrails to prevent overreliance.",
           "Shared accountability: humans own merges; agents propose changes.",
           "Universal fits: tests, debugging, refactoring.",
@@ -241,7 +244,7 @@ Return a prioritized fix list with code-level changes.
           "Pick one workflow (e.g., generate tests & open PR).",
           "Define 3–5 nodes + a TypedDict state.",
           "Add budgets & guards; log everything.",
-          "Wrap one MCP tool (RAG search or repo diff) and iterate with LLM-assisted debugging.",
+          "Wrap one MCP tool (RAG search or repo diff) and iterate with LLM‑assisted debugging.",
         ],
       },
       {
@@ -257,65 +260,55 @@ Return a prioritized fix list with code-level changes.
     []
   );
 
+  // Index of the current slide. We cycle through slides mod slides.length.
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Handlers for arrow keys / buttons.
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
-
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
-
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
 
+  // Hook up keyboard shortcuts.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
+        nextSlide();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+        prevSlide();
       } else if (e.key === "p" || e.key === "P") {
         e.preventDefault();
         window.print();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [slides.length]);
 
   return (
-    <div className="h-screen w-full bg-white text-gray-900 flex flex-col">
+    <div className="h-screen w-full bg-gray-900 text-white flex flex-col">
       {/* Progress bar */}
-      <div className="h-1 w-full bg-gray-100">
+      <div className="h-1 w-full bg-gray-800">
         <div
-          className="h-full bg-blue-500 transition-all duration-300"
+          className="h-full bg-blue-400 transition-all duration-300"
           style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
         />
       </div>
-
       {/* Slide container */}
-      <div className="flex-1 relative overflow-hidden">
-        <div 
-          className="h-full flex transition-transform duration-300 ease-in-out"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
-          {slides.map((s, i) => (
-            <div key={i} className="min-w-full h-full flex-shrink-0">
-              <Slide
-                title={s.title}
-                bullets={s.bullets}
-                code={s.code}
-                note={s.note}
-              />
-            </div>
-          ))}
-        </div>
+      <div className="flex-1 relative overflow-hidden w-full">
+        <Slide
+          title={slides[currentSlide].title}
+          bullets={slides[currentSlide].bullets}
+          code={slides[currentSlide].code}
+          note={slides[currentSlide].note}
+        />
 
         {/* Navigation arrows */}
         <button
@@ -334,20 +327,21 @@ Return a prioritized fix list with code-level changes.
         </button>
 
         {/* Slide indicators */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-black/50 px-6 py-3 rounded-full backdrop-blur-sm">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => goToSlide(i)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === currentSlide ? 'bg-blue-500' : 'bg-gray-300'
+              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                i === currentSlide 
+                  ? 'bg-white scale-125 shadow-lg' 
+                  : 'bg-gray-400 hover:bg-gray-300 hover:scale-110'
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
       </div>
-
       {/* Status indicator */}
       <div className="fixed bottom-4 right-4 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium shadow-lg">
         {currentSlide + 1} / {slides.length}

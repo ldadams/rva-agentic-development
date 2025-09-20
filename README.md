@@ -1,69 +1,48 @@
-# React + TypeScript + Vite
+# Agent & Agentic Developer Tooling - Presentation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, minimal slide deck presentation built with React and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Keyboard Navigation**: Use arrow keys or spacebar to navigate slides
+- **Mouse Navigation**: Click navigation arrows or slide indicators
+- **Print Support**: Press 'P' to open print dialog for handouts
+- **Projector Optimized**: Large text, high contrast, dark theme for visibility
 
-## Expanding the ESLint configuration
+## Running the Presentation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open http://localhost:5173 in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Navigation
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Arrow Keys**: ← / → to navigate between slides
+- **Spacebar**: Next slide
+- **P Key**: Print presentation
+- **Mouse**: Click navigation arrows or slide indicators
+
+## Slides Content
+
+The presentation covers:
+1. Introduction to Agent & Agentic Developer Tooling
+2. Interactive Opener
+3. Graphs vs ReAct (Mental Model)
+4. Lessons Learned (Pitfalls & Guardrails)
+5. Mini State Graph Implementation
+6. MCP/RAG Integration
+7. Debugging with LLMs
+8. Architecture Examples
+9. Usage Patterns & Best Practices
+10. Getting Started Guide
+11. Summary & Call to Action
+
+## Technology Stack
+
+- React 19
+- TypeScript
+- Tailwind CSS
+- Vite
