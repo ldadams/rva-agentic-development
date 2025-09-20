@@ -4,7 +4,7 @@ import TabbedCodeBlock from './TabbedCodeBlock';
 import type { SlideProps } from './types';
 import { 
   slide1, slide2, slide3, slide4, slide5, 
-  slide6, slide7, slide8, slide9, slide10 
+  slide6, slide7, slide8, slide9, slide10, slide11 
 } from './slides';
 
 function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
@@ -36,13 +36,13 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                     className="flex items-start"
                     style={{ 
                       marginBottom: '48px',
-                      paddingLeft: '30px',
+                      paddingLeft: '20px',
                       paddingRight: '30px',
                       textAlign: 'left'
                     }}
                   >
                     <div style={{ 
-                      width: '10px', 
+                      width: '20px', 
                       flexShrink: 0, 
                       display: 'flex', 
                       justifyContent: 'flex-start',
@@ -99,7 +99,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                     }}
                   >
                     <div style={{ 
-                      width: '28px', 
+                      width: '20px', 
                       flexShrink: 0, 
                       display: 'flex', 
                       justifyContent: 'flex-start',
@@ -150,7 +150,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                     }}
                   >
                     <div style={{ 
-                      width: '60px', 
+                      width: '20px', 
                       flexShrink: 0, 
                       display: 'flex', 
                       justifyContent: 'flex-start',
@@ -279,7 +279,8 @@ export default function SlideDeck() {
     slide7,
     slide8,
     slide9,
-    slide10
+    slide10,
+    slide11
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -383,8 +384,13 @@ export default function SlideDeck() {
         </div>
       </div>
 
-      {/* Status indicator */}
-      <div className="fixed bottom-6 right-6 px-4 py-2 bg-black/60 backdrop-blur-sm text-white text-sm font-medium rounded-lg">
+      {/* Slide numbers */}
+      <div className="fixed bottom-4 right-4 px-4 py-2 text-white text-lg font-bold z-50" style={{
+        backgroundColor: '#252526',
+        border: '2px solid #007acc',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+      }}>
         {currentSlide + 1} / {slides.length}
       </div>
     </div>

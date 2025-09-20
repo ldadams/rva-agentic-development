@@ -9,3 +9,4 @@ export { slide7 } from './Slide7';
 export { slide8 } from './Slide8';
 export { slide9 } from './Slide9';
 export { slide10 } from './Slide10';
+export { slide11 } from './Slide11';

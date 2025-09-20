@@ -6,10 +6,9 @@ export const slide10: SlideProps = {
   content: [
     "If you aren't vibe coding, start now",
     "Off-the-shelf copilots can't solve org-specific pain points",
-    "Workflow agents: embed directly into processes (ADRs, ownership, updates)",
     "Junior vs Senior: know what 'great' and 'good enough' looks like for your expected outcome",
     "Start pragmatic, log everything, keep humans in the loop",
-    "Let agents help you write prompts, guards, and tests"
+    "Use agents to help write prompts and build/test agents using log streams"
   ],
-  note: "Thank you! Questions?"
+  note: "Thank you!"
 };
