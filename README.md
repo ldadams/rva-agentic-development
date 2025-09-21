@@ -6,8 +6,8 @@ A slide deck created for a presentation about building agent workflows, sharing 
 
 This presentation was built in the spirit of "good enough" - it's not perfect code, but it works and tells the story effectively. The slides reflect my personal journey building agent tooling and the patterns that worked (and didn't work) in practice.
 
-**What this is**: A collection of real experiences, working code examples, and honest takes on agent development  
-**What this isn't**: A definitive guide or the only way to build agents
+**What this is**: A presentation deck with code snippets and personal experiences  
+**What this isn't**: Working code or a tutorial
 
 ## 🚀 Quick Start (Good Enough™)
 
@@ -50,13 +50,13 @@ npm install && npm run build && npm run start
 
 ## 📝 Personal Experience Notes
 
-These are patterns and approaches that worked in my experience building agent tooling. Your mileage may vary, and that's perfectly fine. The code examples are simplified for presentation but based on real implementations.
+These are patterns and approaches from my experience building agent tooling. The code snippets are simplified for presentation purposes - they illustrate concepts but aren't meant to be copy-pasted into production.
 
 The deck itself was built quickly using the same "good enough" approach discussed in the slides - it does what it needs to do without over-engineering.
 
 ## 🤝 Usage
 
-Feel free to use, adapt, or learn from any of these slides and code examples. The goal is sharing what worked, not prescribing the only way to do things.
+Feel free to use or adapt these slides. The code snippets are for illustration - actual implementation details will vary based on your specific needs.
 
 ---
 
