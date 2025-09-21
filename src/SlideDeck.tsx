@@ -287,6 +287,10 @@ export default function SlideDeck() {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Touch/swipe state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const nextSlide = () => {
     const newSlide = (currentSlide + 1) % slides.length;
@@ -305,7 +309,30 @@ export default function SlideDeck() {
     // updateURL(index); // Temporarily disabled
   };
 
+  // Touch/swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset end position
+    setTouchStart(e.targetTouches[0].clientX);
+  };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;  // Swipe left (next slide)
+    const isRightSwipe = distance < -50; // Swipe right (prev slide)
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -333,7 +360,17 @@ export default function SlideDeck() {
   }, [currentSlide, slides.length]);
 
   return (
-    <div className="h-screen w-full overflow-hidden" style={{ backgroundColor: 'var(--vscode-bg)', color: 'var(--vscode-text)' }}>
+    <div 
+      className="h-screen w-full overflow-hidden" 
+      style={{ 
+        backgroundColor: 'var(--vscode-bg)', 
+        color: 'var(--vscode-text)',
+        touchAction: 'pan-y' // Allow vertical scroll, capture horizontal swipes
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* VS Code-style progress bar */}
       <div className="h-1 w-full" style={{ backgroundColor: 'var(--vscode-sidebar)' }}>
         <div 
