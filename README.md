@@ -1,95 +1,82 @@
-# Agent & Agentic Developer Tooling - Presentation
+# Agent & Agentic Developer Tooling
 
-A clean, minimal slide deck presentation built with React and Tailwind CSS, optimized for projector visibility.
+*"If you aren't vibe coding, start now" - and sometimes 'good enough' is exactly that.*
 
-## 🚀 Quick Start
+A pragmatic slide deck about building agent workflows that actually work. Built with the same philosophy we preach: start small, iterate fast, ship when it's good enough.
 
-**Option 1: Use Pre-built Version (Recommended)**
+## 🎯 The Vibe
+
+This presentation exists because:
+- **Off-the-shelf copilots can't solve org-specific pain points** 
+- **We need workflow agents embedded in our actual processes**
+- **Junior vs Senior: knowing what 'great' and 'good enough' looks like matters**
+- **Sometimes the best code is the code that ships and solves real problems**
+
+## 🚀 Quick Start (Good Enough™)
+
 ```bash
-# Open the built version directly
-open build/index.html
+# Clone and go
+git clone https://github.com/ldadams/rva-agentic-development
+cd rva-agentic-development
+npm install && npm run build && npm run start
+# → http://localhost:3000
 ```
 
-**Option 2: Development Mode (Requires Node.js 20.19+)**
-```bash
-npm install
-npm run build  # Build the presentation
-npm run dev    # Start dev server (if Node.js version is compatible)
-```
+**Live version**: https://rva-slides.netlify.app/
 
-**Option 3: Static Test**
-```bash
-# Open the test version
-open test-slides.html
-```
+## 📱 Navigation (Keep It Simple)
 
-## ✨ Features
+- **Desktop**: Arrow keys, click buttons
+- **Mobile**: Swipe left/right  
+- **Print**: Press 'P' (surprisingly useful)
+- **Links**: Every slide has "deck" and "github" links at bottom
 
-- **🎯 Projector Optimized**: Large text (5xl-7xl headlines), high contrast, dark theme
-- **⌨️ Keyboard Navigation**: Arrow keys, spacebar, 'P' for print
-- **🖱️ Mouse Navigation**: Click arrows or slide indicators
-- **📱 Responsive Design**: Works on desktop, tablet, and mobile
-- **🎨 Clean Styling**: Professional appearance with smooth transitions
+## 📊 What's Inside (11 Slides, ~15 min)
 
-## 🎮 Navigation
+1. **Setup** - Why agents > autocomplete
+2. **Context** - Org-specific pain points  
+3. **Lessons** - Start small, add guards
+4. **Intent Classification** - Simple routing patterns
+5. **State Graph vs ReAct** - When to use which
+6. **MCP Integration** - Real enterprise patterns
+7. **RAG Path** - Knowledge lookup workflows
+8. **Workflow Path** - Org-specific automations
+9. **Guardrails** - Simple guards new engineers can use
+10. **Takeaways** - Realistic expectations & vibe coding
+11. **Q&A** - Let's talk about your agent chaos
 
-| Key/Action | Function |
-|------------|----------|
-| `→` or `Space` | Next slide |
-| `←` | Previous slide |
-| `P` | Print presentation |
-| Click arrows | Navigate slides |
-| Click dots | Jump to specific slide |
-| **URL routing** | **Direct slide access via URLs** |
+## 🛠️ Built With
 
-## 🔗 URL Routing
+**Frontend**: React + TypeScript + Tailwind (classic stack)  
+**Theme**: VS Code dark (because we live there anyway)  
+**Philosophy**: Ship fast, iterate, good enough is often perfect
 
-Each slide is now accessible via URL hash based on the slide title:
+## 🎓 The Real Lessons
 
-- `#lessons-learned-building-agent--agentic-developer-tooling`
-- `#why-agents-beyond-copilot`
-- `#lessons-learned-getting-started`
-- `#intent--route-workflow-vs-rag`
-- `#react-vs-tool-selecting-prompt`
-- `#mcp-tools--langgraph-integration`
-- `#rag-path-knowledge-lookup`
-- `#workflow-path-org-specific`
-- `#pitfalls--debugging`
-- `#takeaways`
+### **Start Pragmatic**
+- 1 workflow, 3-5 nodes, typed state
+- Add guards when things break (they will)
+- Log everything, debug with LLMs
 
-### Features:
-- **Direct linking**: Share specific slides via URL
-- **Browser navigation**: Back/forward buttons work
-- **Bookmarkable**: Save and return to specific slides
-- **SEO friendly**: URL reflects slide content
+### **Set Expectations** 
+- Junior devs: agents aren't magic, they're tools
+- Senior devs: know when to stop polishing agent output
+- Everyone: humans own the merge button
 
-## 📊 Presentation Content
+### **Vibe Coding Philosophy**
+- Build agents that solve your actual daily pain
+- Use whatever LLM you have access to (ChatGPT, Claude, Gemini)
+- Start small, ship when it works, iterate based on real usage
 
-**12 Slides covering practical agent development:**
+## 🤝 Contributing
 
-1. **Introduction** - Overview and focus areas
-2. **Interactive Opener** - Audience engagement questions
-3. **Graphs vs ReAct** - Mental models and trade-offs
-4. **Lessons Learned** - Pitfalls and guardrails
-5. **Mini State Graph** - LangGraph Python implementation
-6. **MCP/RAG Integration** - Code examples and patterns
-7. **Debugging with LLMs** - Troubleshooting techniques
-8. **CI/CD Hygiene** - Larger workflow example
-9. **Agent Accountability** - Usage patterns and responsibility
-10. **Getting Started** - Practical first steps
-11. **Summary** - Key takeaways and call to action
+This deck practices what it preaches:
+- **Good enough code**: It works, it's readable, it ships
+- **Real patterns**: Every code example comes from actual agent building
+- **Honest about limitations**: We call out the rough edges
 
-## 🛠️ Technology Stack
+PRs welcome, especially if they make the examples more realistic or fix actual presentation bugs you encounter.
 
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling and responsiveness
-- **Vite** - Build tooling
-- **Pure CSS Animations** - Smooth transitions
+---
 
-## 📝 Notes
-
-- **Node.js Version**: Development requires 20.19+ or 22.12+
-- **Pre-built Version**: Available in `/build` directory for immediate use
-- **Projector Ready**: Optimized typography and contrast for presentations
-- **Print Friendly**: Press 'P' for printer-optimized view
+*Built for RVA developers who want to embed AI in their workflows without the hype.*

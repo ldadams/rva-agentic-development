@@ -12,4 +12,6 @@ export interface SlideProps {
   diagram?: string; // Path to SVG diagram
   layout?: 'default' | 'bullets-left-code-right' | 'code-left-diagram-right';
   note?: string;
+  slideNumber?: number;
+  totalSlides?: number;
 }

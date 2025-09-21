@@ -7,7 +7,7 @@ import {
   slide6, slide7, slide8, slide9, slide10, slide11 
 } from './slides';
 
-function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
+function Slide({ title, content, code, codeTabs, diagram, note, slideNumber }: SlideProps) {
   return (
     <div className="w-full h-full flex flex-col justify-start px-12 md:px-16 lg:px-20 py-8 md:py-12 overflow-y-auto" style={{ padding: '5px' }}>
       <div className="max-w-7xl mx-auto w-full space-y-8 flex-1 flex flex-col">
@@ -266,6 +266,15 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
             </p>
           </div>
         )}
+        
+        {/* Simple footer with slide number and links */}
+        <div className="mt-auto pt-4 text-center">
+          <p className="text-sm" style={{ color: 'var(--vscode-text)' }}>
+            Slide {slideNumber} • 
+            <a href="https://rva-slides.netlify.app/" className="ml-2 font-mono" style={{ color: 'var(--vscode-accent)' }}>deck</a> • 
+            <a href="https://github.com/ldadams/rva-agentic-development" className="ml-2 font-mono" style={{ color: 'var(--vscode-accent)' }}>github</a>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -384,7 +393,7 @@ export default function SlideDeck() {
 
       {/* Slide content */}
       <div className="h-full relative">
-        <Slide {...slides[currentSlide]} />
+        <Slide {...slides[currentSlide]} slideNumber={currentSlide + 1} />
         
         {/* Navigation arrows */}
         <button
@@ -424,15 +433,7 @@ export default function SlideDeck() {
         </div>
       </div>
 
-      {/* Slide numbers */}
-      <div className="fixed bottom-4 right-4 px-4 py-2 text-white text-lg font-bold z-50" style={{
-        backgroundColor: '#252526',
-        border: '2px solid #007acc',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-      }}>
-        {currentSlide + 1} / {slides.length}
-      </div>
+
     </div>
   );
 }
