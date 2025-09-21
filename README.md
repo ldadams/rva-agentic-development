@@ -1,16 +1,13 @@
 # Agent & Agentic Developer Tooling
 
-*"If you aren't vibe coding, start now" - and sometimes 'good enough' is exactly that.*
+A slide deck created for a presentation about building agent workflows, sharing personal experiences and lessons learned.
 
-A pragmatic slide deck about building agent workflows that actually work. Built with the same philosophy we preach: start small, iterate fast, ship when it's good enough.
+## 📖 About This Deck
 
-## 🎯 The Vibe
+This presentation was built in the spirit of "good enough" - it's not perfect code, but it works and tells the story effectively. The slides reflect my personal journey building agent tooling and the patterns that worked (and didn't work) in practice.
 
-This presentation exists because:
-- **Off-the-shelf copilots can't solve org-specific pain points** 
-- **We need workflow agents embedded in our actual processes**
-- **Junior vs Senior: knowing what 'great' and 'good enough' looks like matters**
-- **Sometimes the best code is the code that ships and solves real problems**
+**What this is**: A collection of real experiences, working code examples, and honest takes on agent development  
+**What this isn't**: A definitive guide or the only way to build agents
 
 ## 🚀 Quick Start (Good Enough™)
 
@@ -51,32 +48,16 @@ npm install && npm run build && npm run start
 **Theme**: VS Code dark (because we live there anyway)  
 **Philosophy**: Ship fast, iterate, good enough is often perfect
 
-## 🎓 The Real Lessons
+## 📝 Personal Experience Notes
 
-### **Start Pragmatic**
-- 1 workflow, 3-5 nodes, typed state
-- Add guards when things break (they will)
-- Log everything, debug with LLMs
+These are patterns and approaches that worked in my experience building agent tooling. Your mileage may vary, and that's perfectly fine. The code examples are simplified for presentation but based on real implementations.
 
-### **Set Expectations** 
-- Junior devs: agents aren't magic, they're tools
-- Senior devs: know when to stop polishing agent output
-- Everyone: humans own the merge button
+The deck itself was built quickly using the same "good enough" approach discussed in the slides - it does what it needs to do without over-engineering.
 
-### **Vibe Coding Philosophy**
-- Build agents that solve your actual daily pain
-- Use whatever LLM you have access to (ChatGPT, Claude, Gemini)
-- Start small, ship when it works, iterate based on real usage
+## 🤝 Usage
 
-## 🤝 Contributing
-
-This deck practices what it preaches:
-- **Good enough code**: It works, it's readable, it ships
-- **Real patterns**: Every code example comes from actual agent building
-- **Honest about limitations**: We call out the rough edges
-
-PRs welcome, especially if they make the examples more realistic or fix actual presentation bugs you encounter.
+Feel free to use, adapt, or learn from any of these slides and code examples. The goal is sharing what worked, not prescribing the only way to do things.
 
 ---
 
-*Built for RVA developers who want to embed AI in their workflows without the hype.*
+*A personal story about building agent workflows, shared at RVA meetups.*
