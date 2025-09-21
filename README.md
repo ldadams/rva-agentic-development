@@ -42,7 +42,7 @@ npm install && npm run build && npm run start
 
 ## Built With
 
-React + TypeScript + Tailwind
+React + TypeScript + Tailwind + Vite
 
 ## Notes
 
