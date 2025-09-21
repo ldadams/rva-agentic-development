@@ -101,7 +101,7 @@ export default function TabbedCodeBlock({ tabs, title = 'Code' }: TabbedCodeBloc
                 ref={codeRef}
                 className={`language-${tabs[activeTab].language || 'python'} !bg-transparent block`}
                 style={{ 
-                  fontSize: '14px', 
+                  fontSize: '16px', 
                   lineHeight: '1.6',
                   wordWrap: 'break-word',
                   overflowWrap: 'break-word'

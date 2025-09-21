@@ -56,7 +56,7 @@ export default function CodeBlock({ code, language = 'python', title = 'Code' }:
               style={{ 
                 backgroundColor: 'var(--vscode-code-bg)',
                 color: 'var(--vscode-code-text)',
-                fontSize: '14px',
+                fontSize: '16px',
                 lineHeight: '1.5',
                 tabSize: 4
               }}
