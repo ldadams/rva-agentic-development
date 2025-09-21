@@ -17,9 +17,10 @@ interface CodeTab {
 interface TabbedCodeBlockProps {
   tabs: CodeTab[];
   title?: string;
+  slideTitle?: string;
 }
 
-export default function TabbedCodeBlock({ tabs, title = 'Code' }: TabbedCodeBlockProps) {
+export default function TabbedCodeBlock({ tabs, title = 'Code', slideTitle }: TabbedCodeBlockProps) {
   const [activeTab, setActiveTab] = useState(0);
   const codeRef = useRef<HTMLElement>(null);
 
@@ -101,7 +102,7 @@ export default function TabbedCodeBlock({ tabs, title = 'Code' }: TabbedCodeBloc
                 ref={codeRef}
                 className={`language-${tabs[activeTab].language || 'python'} !bg-transparent block`}
                 style={{ 
-                  fontSize: '16px', 
+                  fontSize: slideTitle?.includes("Intent → Route") ? '16px' : '17px', 
                   lineHeight: '1.6',
                   wordWrap: 'break-word',
                   overflowWrap: 'break-word'

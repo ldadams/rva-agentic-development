@@ -50,7 +50,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       paddingLeft: '8px'
                     }}>
                       <span style={{ 
-                        fontSize: '28px', 
+                        fontSize: '27px', 
                         fontWeight: 'bold',
                         color: '#007acc',
                         lineHeight: '1'
@@ -59,7 +59,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       </span>
                     </div>
                     <span style={{ 
-                      fontSize: '28px',
+                      fontSize: '27px',
                       lineHeight: '1.4',
                       color: '#cccccc',
                       flex: 1,
@@ -75,19 +75,19 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
           
           {/* Diagram and Bullets - side by side for slide 3 */}
           {title.includes("Lessons Learned Getting Started") && content && content.length > 0 && diagram && !code && !codeTabs ? (
-            <div className="w-full flex gap-8 items-start">
-              {/* Diagram - left side */}
-              <div className="w-1/2 flex items-center justify-center">
+            <div className="w-full flex gap-6 items-start">
+              {/* Diagram - left side (larger) */}
+              <div className="w-3/5 flex items-center justify-center">
                 <img 
                   src={diagram} 
                   alt={`Diagram for ${title}`}
                   className="w-full h-auto rounded-lg border border-gray-600 shadow-lg"
-                  style={{ maxHeight: '60vh', objectFit: 'contain' }}
+                  style={{ maxHeight: '70vh', objectFit: 'contain' }}
                 />
               </div>
               
-              {/* Bullets - right side */}
-              <div className="w-1/2" style={{ paddingLeft: '60px' }}>
+              {/* Bullets - right side (smaller) */}
+              <div className="w-2/5" style={{ paddingLeft: '20px' }}>
                 {content.map((item, index) => (
                   <div 
                     key={index} 
@@ -106,7 +106,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       paddingTop: '8px'
                     }}>
                       <span style={{ 
-                        fontSize: '28px', 
+                        fontSize: '27px', 
                         fontWeight: 'bold',
                         color: '#007acc',
                         lineHeight: '1'
@@ -115,7 +115,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       </span>
                     </div>
                     <span style={{ 
-                      fontSize: '28px',
+                      fontSize: '27px',
                       lineHeight: '1.4',
                       color: '#cccccc',
                       flex: 1,
@@ -136,9 +136,9 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
             title.includes("Workflow Path") ||
             title.includes("Pitfalls & Debugging")) && 
            content && content.length > 0 && (code || codeTabs) && !diagram ? (
-            <div className="w-full flex gap-8 items-start">
-              {/* Bullets - left side */}
-              <div className="w-1/2" style={{ paddingLeft: '60px' }}>
+            <div className="w-full flex gap-6 items-start">
+              {/* Bullets - left side (smaller) */}
+              <div className="w-2/5" style={{ paddingLeft: '20px' }}>
                 {content.map((item, index) => (
                   <div 
                     key={index} 
@@ -157,7 +157,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       paddingTop: '8px'
                     }}>
                       <span style={{ 
-                        fontSize: '28px', 
+                        fontSize: '27px', 
                         fontWeight: 'bold',
                         color: '#007acc',
                         lineHeight: '1'
@@ -166,7 +166,7 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                       </span>
                     </div>
                     <span style={{ 
-                      fontSize: '28px',
+                      fontSize: '27px',
                       lineHeight: '1.4',
                       color: '#cccccc',
                       flex: 1,
@@ -178,15 +178,16 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
                 ))}
               </div>
               
-              {/* Code block - right side */}
-              <div className="w-1/2">
+              {/* Code block - right side (larger) */}
+              <div className="w-3/5">
                 {codeTabs && codeTabs.length > 0 ? (
-                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="State Graph vs ReAct" />
+                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="State Graph vs ReAct" slideTitle={title} />
                 ) : code ? (
                   <CodeBlock 
                     code={code} 
                     language="python" 
                     title="Code Comparison"
+                    slideTitle={title}
                   />
                 ) : null}
               </div>
@@ -195,25 +196,26 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
           
           /* Diagram and Code - side by side if both present */
           (code || codeTabs) && diagram ? (
-            <div className="w-full flex gap-8 items-start">
-              {/* Diagram - left side */}
+            <div className="w-full flex gap-6 items-start">
+              {/* Diagram - left side (balanced) */}
               <div className="w-1/2 flex items-center justify-center">
                 <img 
                   src={diagram} 
                   alt={`Diagram for ${title}`}
                   className="w-full h-auto rounded-lg border border-gray-600 shadow-lg"
-                  style={{ maxHeight: '60vh', objectFit: 'contain' }}
+                  style={{ maxHeight: '70vh', objectFit: 'contain' }}
                 />
               </div>
-              {/* Code block - right side */}
+              {/* Code block - right side (balanced) */}
               <div className="w-1/2">
                 {codeTabs && codeTabs.length > 0 ? (
-                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" />
+                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" slideTitle={title} />
                 ) : code ? (
                   <CodeBlock 
                     code={code} 
                     language="python" 
                     title="Code Example"
+                    slideTitle={title}
                   />
                 ) : null}
               </div>
@@ -223,15 +225,16 @@ function Slide({ title, content, code, codeTabs, diagram, note }: SlideProps) {
             <>
               {/* Code block only */}
               {(codeTabs && codeTabs.length > 0) || code ? (
-                <div className="w-full flex justify-center">
-                  <div className="w-full max-w-6xl">
+                <div className="w-full">
+                  <div className="w-full">
                     {codeTabs && codeTabs.length > 0 ? (
-                      <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" />
+                      <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Implementation" slideTitle={title} />
                     ) : code ? (
                       <CodeBlock 
                         code={code} 
                         language="python" 
                         title="Code Example"
+                        slideTitle={title}
                       />
                     ) : null}
                   </div>

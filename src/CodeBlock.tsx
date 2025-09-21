@@ -12,9 +12,10 @@ interface CodeBlockProps {
   code: string;
   language?: string;
   title?: string;
+  slideTitle?: string;
 }
 
-export default function CodeBlock({ code, language = 'python', title = 'Code' }: CodeBlockProps) {
+export default function CodeBlock({ code, language = 'python', title = 'Code', slideTitle }: CodeBlockProps) {
   const codeRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function CodeBlock({ code, language = 'python', title = 'Code' }:
               style={{ 
                 backgroundColor: 'var(--vscode-code-bg)',
                 color: 'var(--vscode-code-text)',
-                fontSize: '16px',
+                fontSize: slideTitle?.includes("Intent → Route") ? '16px' : '17px',
                 lineHeight: '1.5',
                 tabSize: 4
               }}
