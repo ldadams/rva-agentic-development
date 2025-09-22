@@ -4,7 +4,7 @@ import TabbedCodeBlock from './TabbedCodeBlock';
 import type { SlideProps } from './types';
 import { 
   slide1, slide2, slide3, slide4, slide5, 
-  slide6, slide7, slide8, slide9, slide10, slide11 
+  slide6, slide8, slide9, slide10, slide11 
 } from './slides';
 
 function Slide({ title, content, code, codeTabs, diagram, note, slideNumber }: SlideProps) {
@@ -23,10 +23,9 @@ function Slide({ title, content, code, codeTabs, diagram, note, slideNumber }: S
           {/* Content bullets - only for slides WITHOUT side-by-side layout */}
           {content && content.length > 0 && 
            !title.includes("Lessons Learned Getting Started") &&
-           !title.includes("State Graph vs ReAct") && 
+           !title.includes("Agent Types") && 
            !title.includes("MCP Tools + LangGraph") &&
-           !title.includes("RAG Path") &&
-           !title.includes("Workflow Path") &&
+           !title.includes("Implementing Org-Specific Tools") &&
            !title.includes("Pitfalls & Debugging") && (
             <div className="w-full">
               <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
@@ -130,10 +129,9 @@ function Slide({ title, content, code, codeTabs, diagram, note, slideNumber }: S
           ) : 
           
           /* Bullets and Code - side by side for slides 5-9 */
-          (title.includes("State Graph vs ReAct") || 
+          (title.includes("Agent Types") || 
             title.includes("MCP Tools + LangGraph") ||
-            title.includes("RAG Path") ||
-            title.includes("Workflow Path") ||
+            title.includes("Implementing Org-Specific Tools") ||
             title.includes("Pitfalls & Debugging")) && 
            content && content.length > 0 && (code || codeTabs) && !diagram ? (
             <div className="w-full flex gap-6 items-start">
@@ -181,7 +179,7 @@ function Slide({ title, content, code, codeTabs, diagram, note, slideNumber }: S
               {/* Code block - right side (larger) */}
               <div className="w-3/5">
                 {codeTabs && codeTabs.length > 0 ? (
-                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="State Graph vs ReAct" slideTitle={title} />
+                  <TabbedCodeBlock key={`${title}-tabs`} tabs={codeTabs} title="Agent Types" slideTitle={title} />
                 ) : code ? (
                   <CodeBlock 
                     code={code} 
@@ -288,7 +286,6 @@ export default function SlideDeck() {
     slide4,
     slide5,
     slide6,
-    slide7,
     slide8,
     slide9,
     slide10,

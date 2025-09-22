@@ -10,8 +10,7 @@ Each slide is now in its own file for better organization and maintainability.
 - **`Slide4.tsx`** - Intent → Route (binary classification code)
 - **`Slide5.tsx`** - ReAct vs Tool-Select (2 tabbed code examples)
 - **`Slide6.tsx`** - MCP Tools + LangGraph (3 tabbed code examples)
-- **`Slide7.tsx`** - RAG Path Knowledge Lookup (single code block)
-- **`Slide8.tsx`** - Workflow Path Org-Specific (3 tabbed code examples)  
+- **`Slide8.tsx`** - Implementing Org-Specific Tools (3 tabbed code examples with RAG integrated)  
 - **`Slide9.tsx`** - Pitfalls & Debugging (2 tabbed code examples)
 - **`Slide10.tsx`** - Takeaways (no code)
 

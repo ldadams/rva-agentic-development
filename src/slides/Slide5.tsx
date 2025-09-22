@@ -1,39 +1,15 @@
 import type { SlideProps } from '../types';
 
-// Slide 5 — State Graph vs ReAct
+// Slide 5 — Agent Types
 export const slide5: SlideProps = {
-  title: "State Graph vs ReAct", 
+  title: "Agent Types", 
   content: [
-    "Why not ReAct?",
+    "State Graphs: explicit nodes & edges, typed state, deterministic routing",
     "ReAct: model plans every step → hidden state, tool loops",
-    "Better: single LLM call selects tool, graph executes deterministically"
+    "ReAct pros and cons"
   ],
   layout: 'bullets-left-code-right',
   codeTabs: [
-    {
-      filename: "react_approach.py",
-      code: `# ReAct Approach (loop-prone)
-REACT_PROMPT = """
-You are an assistant. Think step-by-step and use tools as needed until done.
-
-Available tools:
-- search_docs: Search documentation  
-- summarize_adr: Summarize architecture decisions
-- find_owner: Find service ownership
-
-User: {prompt}
-
-Think through this step by step. Use tools as needed.
-Continue until you have a complete answer.
-"""
-
-# Problems:
-# - Model decides when to stop
-# - Hidden state in conversation
-# - Can loop infinitely
-# - Hard to enforce business rules`,
-      language: "python"
-    },
     {
       filename: "state_graph_approach.py",
       code: `# State Graph Approach (structured)  
@@ -60,6 +36,30 @@ Return STRICT JSON:
 # - Structured output
 # - Graph handles execution
 # - Easy to add guards and validation`,
+      language: "python"
+    },
+    {
+      filename: "react_approach.py",
+      code: `# ReAct Approach (loop-prone)
+REACT_PROMPT = """
+You are an assistant. Think step-by-step and use tools as needed until done.
+
+Available tools:
+- search_docs: Search documentation  
+- summarize_adr: Summarize architecture decisions
+- find_owner: Find service ownership
+
+User: {prompt}
+
+Think through this step by step. Use tools as needed.
+Continue until you have a complete answer.
+"""
+
+# Problems:
+# - Model decides when to stop
+# - Hidden state in conversation
+# - Can loop infinitely
+# - Hard to enforce business rules`,
       language: "python"
     }
   ],

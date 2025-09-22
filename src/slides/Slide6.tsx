@@ -4,135 +4,120 @@ import type { SlideProps } from '../types';
 export const slide6: SlideProps = {
   title: "MCP Tools + LangGraph Integration",
   content: [
-    "MultiServerMCPClient connects to multiple org servers",
-    "LLM prompt output specifies which tool to call",
-    "ToolNode executes the selected MCP tool automatically"
+    "MCP Resources expose data (read-only information)",
+    "MCP Tools perform actions (functions with side effects)",
+    "LangGraph + FastMCP: resources directly, tools via agent"
   ],
   codeTabs: [
     {
-      filename: "mcp_server_tools.py",
-      code: `# Simple MCP Tool Example
+      filename: "mcp_server.py",
+      code: `# Generic MCP Server Pattern
 
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import Tool
-import json
+from fastmcp import FastMCP
 
-# Create MCP server instance
-app = Server("org-tools")
+mcp = FastMCP("Example Server")
 
-@app.tool("get_service_ownership")
-async def get_service_ownership(service_name: str) -> str:
-    """Find who owns a service and their contact information."""
-    
-    # This would connect to your service catalog
-    service_data = {
-        "service": service_name,
-        "owner": "alice@yourorg.com",
-        "team": "platform-team", 
-        "slack_channel": "#platform-support",
-        "oncall": "bob@yourorg.com",
-        "repo": f"https://github.com/yourorg/{service_name}",
-        "runbook": f"https://docs.yourorg.com/services/{service_name}"
-    }
-    
-    return json.dumps(service_data, indent=2)
-
-@app.tool("search_documentation") 
-async def search_docs(query: str) -> str:
-    """Search internal documentation and ADRs."""
-    
-    # This would search your docs/wiki/ADR system
-    results = [
-        {"title": "Auth Service Architecture", "url": "https://docs.yourorg.com/auth"},
-        {"title": "ADR-123: JWT Implementation", "url": "https://adr.yourorg.com/123"}
+# Resources expose data (read-only)
+@mcp.resource("data/items")
+def get_items():
+    return [
+        {"id": "item1", "name": "Example Item", "status": "active"},
+        {"id": "item2", "name": "Another Item", "status": "pending"}
     ]
-    
-    return json.dumps(results, indent=2)
 
-# Run MCP server: python mcp_server_tools.py
-if __name__ == "__main__":
-    stdio_server(app)`,
+@mcp.resource("config/settings")
+def get_settings():
+    return {
+        "api_version": "v1",
+        "rate_limit": 1000,
+        "features": ["feature_a", "feature_b"]
+    }
+
+# Dynamic resource with parameters
+@mcp.resource("items/{item_id}")
+def get_item_details(item_id: str):
+    return {
+        "id": item_id,
+        "details": f"Details for {item_id}",
+        "metadata": {"created": "2024-01-01"}
+    }
+
+# Tools perform actions
+@mcp.tool
+def process_item(item_id: str, action: str) -> str:
+    return {
+        "result": f"Processed {item_id} with action: {action}",
+        "status": "completed"
+    }`,
       language: "python"
     },
     {
-      filename: "tool_selection_prompt.py",
-      code: `# Tool Selection Prompt Output Example
+      filename: "mcp_client.py",
+      code: `# Basic MCP Client Usage
 
-TOOL_SELECTION_PROMPT = """
-You are a tool selector. Choose exactly ONE tool for this request.
+from fastmcp import FastMCP
 
-Available tools from MultiServerMCPClient:
-- search_documentation(query): Search internal docs and ADRs
-- get_service_ownership(service_name): Find service owner and team info  
-- analyze_adr_risks(adr_id): Analyze architecture decision risks
-
-User request: {user_input}
-
-Return ONLY the tool call in this format:
-{{"tool": "tool_name", "args": {{"param": "value"}}}}
-"""
-
-# Example LLM output for "Who owns the auth service?":
-llm_output = '''
-{
-  "tool": "get_service_ownership",
-  "args": {
-    "service_name": "auth-service"
-  }
-}
-'''
-
-# This structured output is then passed to ToolNode for execution
-import json
-selected_tool = json.loads(llm_output)
-print(f"Selected tool: {selected_tool['tool']}")
-print(f"Tool args: {selected_tool['args']}")`,
+async def use_mcp_server():
+    async with FastMCP.client("mcp_server.py") as client:
+        
+        # Read resources (data access)
+        items = await client.read_resource("data/items")
+        settings = await client.read_resource("config/settings") 
+        item1_details = await client.read_resource("items/item1")
+        
+        # Call tools (actions)
+        result = await client.call_tool("process_item", {
+            "item_id": "item1",
+            "action": "validate"
+        })
+        
+        return {
+            "items": items.content,
+            "settings": settings.content,
+            "details": item1_details.content,
+            "action_result": result.content
+        }`,
       language: "python"
     },
     {
-      filename: "toolnode_execution.py",
-      code: `# ToolNode Executes Selected MCP Tool
+      filename: "langgraph_integration.py", 
+      code: `# LangGraph with MCP Integration
 
-from langgraph.prebuilt import ToolNode
-from langchain_mcp_adapters import MultiServerMCPClient
-import json
+from langgraph.prebuilt import create_react_agent
+from langchain_openai import ChatOpenAI
+from fastmcp import FastMCP
 
-# 1. MultiServerMCPClient loads tools from org servers
-async with MultiServerMCPClient(org_mcp_servers) as client:
-    mcp_tools = client.get_tools()
+async def create_agent_with_mcp(user_prompt: str):
+    # Connect to MCP server
+    async with FastMCP.client("mcp_server.py") as mcp_client:
+        
+        # Get MCP tools for LangGraph
+        mcp_tools = await mcp_client.list_tools()
+        
+        # Convert to LangChain tools
+        langchain_tools = []
+        for tool in mcp_tools:
+            def make_func(tool_name):
+                async def func(**kwargs):
+                    result = await mcp_client.call_tool(tool_name, kwargs)
+                    return result.content
+                return func
+            langchain_tools.append(make_func(tool.name))
+        
+        # Create agent
+        llm = ChatOpenAI(model="gpt-4o")
+        agent = create_react_agent(llm, langchain_tools)
+        
+        # Use agent with user input (it can call MCP tools automatically)
+        result = await agent.ainvoke({
+            "messages": [user_prompt]
+        })
+        
+        return result
 
-# 2. ToolNode handles tool execution
-tool_node = ToolNode(mcp_tools)
-
-# 3. LLM selected this tool (from previous tab):
-selected_tool_call = {
-    "tool": "get_service_ownership",
-    "args": {"service_name": "auth-service"}
-}
-
-# 4. ToolNode executes the MCP tool automatically
-class State(TypedDict):
-    tool_calls: List[dict]
-    tool_results: List[str]
-
-# Simulate tool execution
-state = {
-    "tool_calls": [selected_tool_call],
-    "tool_results": []
-}
-
-# ToolNode execution
-result_state = await tool_node.ainvoke(state)
-
-# 5. ToolNode returns structured results:
-print("Tool execution result:", result_state["tool_results"][0])
-# Output: {"service": "auth-service", "owner": "alice@org.com", 
-#          "team": "platform", "slack": "#platform-team"}
-
-# Flow: Prompt → Tool Selection → ToolNode → MCP Server → Results`,
+# Usage: await create_agent_with_mcp("Process item1 with validation action")`,
       language: "python"
     }
   ],
-  note: "Production MCP setup with multiple servers • Automatic tool discovery"
+  note: "Generic MCP integration patterns • Foundation for org-specific implementations"
 };

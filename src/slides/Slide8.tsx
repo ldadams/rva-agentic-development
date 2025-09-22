@@ -1,131 +1,174 @@
 import type { SlideProps } from '../types';
 
-// Slide 8 — Workflow Path (Org-Specific)
+// Slide 8 — Implementing Org-Specific Tools
 export const slide8: SlideProps = {
-  title: "Workflow Path (Org-Specific)",
+  title: "Implementing Org-Specific Tools",
   content: [
-    "MCP tools for common org workflows:",
-    "ADR analysis, service ownership, cross-team updates",
-    "ToolNode executes MCP calls with proper error handling"
+    "Three core organizational tools: Summarize ADR, Find Owner, Compose Update",
+    "Agent routes to ONE tool per request → deterministic execution", 
+    "MCP provides org-specific data and functions"
   ],
   codeTabs: [
     {
-      filename: "adr_workflow.py",
-      code: `# ADR Risk Analysis via https://localhost/mcp
+      filename: "summarize_adr.py",
+      code: `# Summarize ADR with RAG
 
-from mcp import ClientSession, HttpTransport
+from fastmcp import FastMCP
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import ChatOpenAI
 
-# Connect to org MCP server
-mcp_transport = HttpTransport("https://localhost/mcp")
+adr_mcp = FastMCP("ADR Knowledge")
 
-async def analyze_adr_risks(adr_id: str) -> str:
-    """Analyze ADR for technical risks via MCP server."""
+# Vector store for ADR documentation
+@adr_mcp.resource("adrs/vectorstore")
+def setup_adr_vectorstore():
+    # Load and chunk ADR documents
+    docs = ["ADR-123: JWT Implementation...", "ADR-124: Database Migration..."]
+    splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+    chunks = splitter.create_documents(docs)
     
-    async with ClientSession(mcp_transport) as client:
-        # Use MCP server's analyze_adr_risks tool
-        risk_analysis = await client.call_tool("analyze_adr_risks", {
+    # Create vector store
+    vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
+    return vectorstore
+
+# RAG-powered ADR summarization tool
+@adr_mcp.tool
+async def summarize_adr_with_rag(adr_id: str, question: str = "Summarize this ADR") -> str:
+    # Get vector store
+    vectorstore = setup_adr_vectorstore()
+    
+    # Retrieve relevant chunks (real RAG)
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    relevant_chunks = retriever.get_relevant_documents(f"ADR-{adr_id} {question}")
+    
+    # Assemble context from retrieved chunks
+    context = "\\n\\n".join([chunk.page_content for chunk in relevant_chunks])
+    
+    # Generate summary with LLM
+    llm = ChatOpenAI(model="gpt-4o")
+    response = await llm.ainvoke([
+        {"role": "system", "content": "Summarize ADRs with key decisions and impacts"},
+        {"role": "user", "content": f"Context:\\n{context}\\n\\nQuestion: {question}"}
+    ])
+    
+    return response.content
+
+# Usage
+async def org_adr_summary(adr_id: str):
+    async with FastMCP.client(adr_mcp) as client:
+        summary = await client.call_tool("summarize_adr_with_rag", {
             "adr_id": adr_id,
-            "include_dependencies": True,
-            "include_migration_plan": True,
-            "severity_threshold": "medium"
+            "question": "What are the key decisions and risks?"
         })
-        
-        # Get full ADR content for context
-        adr_content = await client.read_resource(f"adr://{adr_id}")
-        
-        # Format comprehensive risk report
-        report = {
-            "adr_id": adr_id,
-            "title": adr_content["title"],
-            "risks": risk_analysis["identified_risks"],
-            "affected_services": risk_analysis["dependencies"],
-            "migration_complexity": risk_analysis["complexity_score"],
-            "recommended_timeline": risk_analysis["timeline"],
-            "mitigation_steps": risk_analysis["mitigations"]
-        }
-        
-        return json.dumps(report, indent=2)`,
+        return summary.content`,
       language: "python"
     },
     {
-      filename: "ownership_workflow.py", 
-      code: `# Service Ownership via https://localhost/mcp
+      filename: "service_ownership.py", 
+      code: `# Service Ownership with MCP
 
-async def find_complete_ownership(service_name: str) -> str:
-    """Complete ownership lookup via MCP server."""
-    
-    async with ClientSession(mcp_transport) as client:
-        # Use MCP server's get_service_ownership tool
-        ownership_data = await client.call_tool("get_service_ownership", {
-            "service_name": service_name,
-            "include_oncall": True,
-            "include_contacts": True,
-            "include_repo_info": True
-        })
+from fastmcp import FastMCP
+
+org_mcp = FastMCP("Org Directory")
+
+@org_mcp.resource("services/ownership")
+def get_ownership():
+    return {
+        "auth-service": {"owner": "alice@org.com", "team": "platform"},
+        "payment-api": {"owner": "bob@org.com", "team": "payments"},
+        "user-service": {"owner": "charlie@org.com", "team": "identity"}
+    }
+
+@org_mcp.resource("teams/contacts")
+def get_contacts():
+    return {
+        "platform": {"lead": "alice@org.com", "slack": "#platform-support"},
+        "payments": {"lead": "bob@org.com", "slack": "#payments-team"},
+        "identity": {"lead": "charlie@org.com", "slack": "#identity-team"}
+    }
+
+@org_mcp.resource("services/{service_name}/health")
+def get_health(service_name: str):
+    health = {
+        "auth-service": {"status": "healthy", "uptime": "99.9%"},
+        "payment-api": {"status": "degraded", "uptime": "95.2%"},
+        "user-service": {"status": "healthy", "uptime": "99.8%"}
+    }
+    return health.get(service_name, {"error": "Service not found"})
+
+# Usage - Find Owner
+async def find_service_owner(service_name: str):
+    async with FastMCP.client(org_mcp) as client:
+        ownership = await client.read_resource("services/ownership")
+        contacts = await client.read_resource("teams/contacts")
+        health = await client.read_resource(f"services/{service_name}/health")
         
-        # Get additional team context
-        team_info = await client.read_resource(f"team://{ownership_data['team']}/info")
+        service_info = ownership.content[service_name]
+        team_info = contacts.content[service_info["team"]]
         
-        # Format complete ownership info
-        complete_ownership = {
-            "service": service_name,
-            "primary_owner": ownership_data["owner"],
-            "team": ownership_data["team"],
-            "tech_lead": team_info["tech_lead"],
-            "current_oncall": ownership_data["oncall"]["current"],
-            "backup_oncall": ownership_data["oncall"]["backup"],
-            "slack_channel": team_info["slack_channel"],
-            "pagerduty_service": ownership_data["pagerduty_id"],
-            "repository": ownership_data["repo_url"],
-            "documentation": f"https://localhost/mcp/docs/services/{service_name}"
-        }
-        
-        return json.dumps(complete_ownership, indent=2)`,
+        return f"Owner: {service_info['owner']}, Team: {service_info['team']}, Contact: {team_info['slack']}"`,
       language: "python"
     },
     {
-      filename: "update_workflow.py",
-      code: `# Cross-Team Updates via https://localhost/mcp
+      filename: "team_updates.py",
+      code: `# Cross-Team Updates with MCP Context
 
-async def generate_cross_team_update(topic: str, affected_teams: List[str]) -> str:
-    """Generate tailored update message for cross-team coordination."""
+from fastmcp import FastMCP, Context
+
+comm_mcp = FastMCP("Team Communication")
+
+@comm_mcp.resource("teams/contacts")
+def get_contacts():
+    return {
+        "platform": {"lead": "alice@org.com", "slack": "#platform-support"},
+        "payments": {"lead": "bob@org.com", "slack": "#payments-team"},
+        "identity": {"lead": "charlie@org.com", "slack": "#identity-team"}
+    }
+
+@comm_mcp.resource("templates/communication")
+def get_templates():
+    return {
+        "normal": {"emoji": "🔔", "prefix": "Action Required:", "follow_up": "8 hours"},
+        "high": {"emoji": "🚨", "prefix": "URGENT:", "follow_up": "2 hours"},
+        "critical": {"emoji": "🔴", "prefix": "CRITICAL:", "follow_up": "immediate"}
+    }
+
+# Tool with Context for logging/progress
+@comm_mcp.tool
+async def generate_update(topic: str, teams: list[str], urgency: str = "normal", ctx: Context = None) -> str:
+    if ctx:
+        await ctx.info(f"Generating {urgency} update for {len(teams)} teams")
     
-    async with ClientSession(mcp_transport) as client:
-        # Get team preferences from MCP server
-        team_data = []
-        for team in affected_teams:
-            team_prefs = await client.call_tool("get_team_preferences", {
-                "team_name": team,
-                "include_communication_style": True,
-                "include_notification_channels": True
-            })
-            team_data.append(team_prefs)
-        
-        # Generate tailored update using MCP server's generation tool
-        update_request = {
+    # Access resources within tool using context
+    team_data = await ctx.read_resource("teams/contacts") if ctx else {}
+    templates = await ctx.read_resource("templates/communication") if ctx else {}
+    
+    template = templates.content.get(urgency, templates.content.get("normal", {}))
+    
+    update = {
+        "slack_message": f"{template['emoji']} {template['prefix']} {topic}",
+        "affected_teams": teams,
+        "follow_up": template['follow_up']
+    }
+    
+    if ctx:
+        await ctx.info(f"Generated update for teams: {', '.join(teams)}")
+    
+    return update
+
+# Usage - Compose team update
+async def compose_team_update(topic: str, teams: list[str]):
+    async with FastMCP.client(comm_mcp) as client:
+        update = await client.call_tool("generate_update", {
             "topic": topic,
-            "affected_teams": team_data,
-            "format": "slack_and_jira",
-            "include_action_items": True,
-            "include_links": True
-        }
-        
-        update_message = await client.call_tool("generate_team_update", update_request)
-        
-        # Format final message with MCP server links
-        formatted_update = {
-            "slack_message": update_message["slack_formatted"],
-            "jira_description": update_message["jira_formatted"], 
-            "action_items": update_message["action_items"],
-            "related_links": [
-                f"https://localhost/mcp/teams/{team}" for team in affected_teams
-            ],
-            "mcp_trace_id": update_message["trace_id"]
-        }
-        
-        return json.dumps(formatted_update, indent=2)`,
+            "teams": teams,
+            "urgency": "normal"
+        })
+        return update.content`,
       language: "python"
     }
   ],
-  note: "Enterprise MCP workflows • ADR analysis, ownership, team coordination"
+  note: "Org-specific agents with RAG, resource lookup, and contextual tools • Matches opening diagram"
 };

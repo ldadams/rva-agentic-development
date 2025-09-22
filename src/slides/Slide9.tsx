@@ -4,7 +4,7 @@ import type { SlideProps } from '../types';
 export const slide9: SlideProps = {
   title: "Pitfalls & Debugging",
   content: [
-    "Simple guards new engineers can use immediately",
+    "Simple guards prevent costly mistakes and timeouts",
     "Budget limits, timeouts, retry caps, input validation", 
     "Log execution patterns and errors for analysis",
     "Use any LLM (ChatGPT, Claude, Gemini) to identify improvements"
