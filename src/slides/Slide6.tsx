@@ -1,123 +1,174 @@
 import type { SlideProps } from '../types';
 
-// Slide 6 — MCP Tools + LangGraph Integration
+// Slide 6 — Implementing Org-Specific Tools
 export const slide6: SlideProps = {
-  title: "MCP Tools + LangGraph Integration",
+  title: "Implementing Org-Specific Tools",
   content: [
-    "MCP Resources expose data (read-only information)",
-    "MCP Tools perform actions (functions with side effects)",
-    "LangGraph + FastMCP: resources directly, tools via agent"
+    "Three core organizational tools: Summarize Architecture Decision Records (ADR), Find Owner, Compose Update",
+    "Agent routes to ONE tool per request → deterministic execution", 
+    "Model Context Protocol (MCP) provides org-specific data and functions"
   ],
   codeTabs: [
     {
-      filename: "mcp_server.py",
-      code: `# Generic MCP Server Pattern
+      filename: "summarize_adr.py",
+      code: `# Summarize ADR with RAG
 
 from fastmcp import FastMCP
-
-mcp = FastMCP("Example Server")
-
-# Resources expose data (read-only)
-@mcp.resource("data/items")
-def get_items():
-    return [
-        {"id": "item1", "name": "Example Item", "status": "active"},
-        {"id": "item2", "name": "Another Item", "status": "pending"}
-    ]
-
-@mcp.resource("config/settings")
-def get_settings():
-    return {
-        "api_version": "v1",
-        "rate_limit": 1000,
-        "features": ["feature_a", "feature_b"]
-    }
-
-# Dynamic resource with parameters
-@mcp.resource("items/{item_id}")
-def get_item_details(item_id: str):
-    return {
-        "id": item_id,
-        "details": f"Details for {item_id}",
-        "metadata": {"created": "2024-01-01"}
-    }
-
-# Tools perform actions
-@mcp.tool
-def process_item(item_id: str, action: str) -> str:
-    return {
-        "result": f"Processed {item_id} with action: {action}",
-        "status": "completed"
-    }`,
-      language: "python"
-    },
-    {
-      filename: "mcp_client.py",
-      code: `# Basic MCP Client Usage
-
-from fastmcp import FastMCP
-
-async def use_mcp_server():
-    async with FastMCP.client("mcp_server.py") as client:
-        
-        # Read resources (data access)
-        items = await client.read_resource("data/items")
-        settings = await client.read_resource("config/settings") 
-        item1_details = await client.read_resource("items/item1")
-        
-        # Call tools (actions)
-        result = await client.call_tool("process_item", {
-            "item_id": "item1",
-            "action": "validate"
-        })
-        
-        return {
-            "items": items.content,
-            "settings": settings.content,
-            "details": item1_details.content,
-            "action_result": result.content
-        }`,
-      language: "python"
-    },
-    {
-      filename: "langgraph_integration.py", 
-      code: `# LangGraph with MCP Integration
-
-from langgraph.prebuilt import create_react_agent
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
+
+adr_mcp = FastMCP("ADR Knowledge")
+
+# Vector store for ADR documentation
+@adr_mcp.resource("adrs/vectorstore")
+def setup_adr_vectorstore():
+    # Load and chunk ADR documents
+    docs = ["ADR-123: JWT Implementation...", "ADR-124: Database Migration..."]
+    splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+    chunks = splitter.create_documents(docs)
+    
+    # Create vector store
+    vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
+    return vectorstore
+
+# RAG-powered ADR summarization tool
+@adr_mcp.tool
+async def summarize_adr_with_rag(adr_id: str, question: str = "Summarize this ADR") -> str:
+    # Get vector store
+    vectorstore = setup_adr_vectorstore()
+    
+    # Retrieve relevant chunks (real RAG)
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    relevant_chunks = retriever.get_relevant_documents(f"ADR-{adr_id} {question}")
+    
+    # Assemble context from retrieved chunks
+    context = "\\n\\n".join([chunk.page_content for chunk in relevant_chunks])
+    
+    # Generate summary with LLM
+    llm = ChatOpenAI(model="gpt-4o")
+    response = await llm.ainvoke([
+        {"role": "system", "content": "Summarize ADRs with key decisions and impacts"},
+        {"role": "user", "content": f"Context:\\n{context}\\n\\nQuestion: {question}"}
+    ])
+    
+    return response.content
+
+# Usage
+async def org_adr_summary(adr_id: str):
+    async with FastMCP.client(adr_mcp) as client:
+        summary = await client.call_tool("summarize_adr_with_rag", {
+            "adr_id": adr_id,
+            "question": "What are the key decisions and risks?"
+        })
+        return summary.content`,
+      language: "python"
+    },
+    {
+      filename: "service_ownership.py", 
+      code: `# Service Ownership with MCP
+
 from fastmcp import FastMCP
 
-async def create_agent_with_mcp(user_prompt: str):
-    # Connect to MCP server
-    async with FastMCP.client("mcp_server.py") as mcp_client:
-        
-        # Get MCP tools for LangGraph
-        mcp_tools = await mcp_client.list_tools()
-        
-        # Convert to LangChain tools
-        langchain_tools = []
-        for tool in mcp_tools:
-            def make_func(tool_name):
-                async def func(**kwargs):
-                    result = await mcp_client.call_tool(tool_name, kwargs)
-                    return result.content
-                return func
-            langchain_tools.append(make_func(tool.name))
-        
-        # Create agent
-        llm = ChatOpenAI(model="gpt-4o")
-        agent = create_react_agent(llm, langchain_tools)
-        
-        # Use agent with user input (it can call MCP tools automatically)
-        result = await agent.ainvoke({
-            "messages": [user_prompt]
-        })
-        
-        return result
+org_mcp = FastMCP("Org Directory")
 
-# Usage: await create_agent_with_mcp("Process item1 with validation action")`,
+@org_mcp.resource("services/ownership")
+def get_ownership():
+    return {
+        "auth-service": {"owner": "alice@org.com", "team": "platform"},
+        "payment-api": {"owner": "bob@org.com", "team": "payments"},
+        "user-service": {"owner": "charlie@org.com", "team": "identity"}
+    }
+
+@org_mcp.resource("teams/contacts")
+def get_contacts():
+    return {
+        "platform": {"lead": "alice@org.com", "slack": "#platform-support"},
+        "payments": {"lead": "bob@org.com", "slack": "#payments-team"},
+        "identity": {"lead": "charlie@org.com", "slack": "#identity-team"}
+    }
+
+@org_mcp.resource("services/{service_name}/health")
+def get_health(service_name: str):
+    health = {
+        "auth-service": {"status": "healthy", "uptime": "99.9%"},
+        "payment-api": {"status": "degraded", "uptime": "95.2%"},
+        "user-service": {"status": "healthy", "uptime": "99.8%"}
+    }
+    return health.get(service_name, {"error": "Service not found"})
+
+# Usage - Find Owner
+async def find_service_owner(service_name: str):
+    async with FastMCP.client(org_mcp) as client:
+        ownership = await client.read_resource("services/ownership")
+        contacts = await client.read_resource("teams/contacts")
+        health = await client.read_resource(f"services/{service_name}/health")
+        
+        service_info = ownership.content[service_name]
+        team_info = contacts.content[service_info["team"]]
+        
+        return f"Owner: {service_info['owner']}, Team: {service_info['team']}, Contact: {team_info['slack']}"`,
+      language: "python"
+    },
+    {
+      filename: "team_updates.py",
+      code: `# Cross-Team Updates with MCP Context
+
+from fastmcp import FastMCP, Context
+
+comm_mcp = FastMCP("Team Communication")
+
+@comm_mcp.resource("teams/contacts")
+def get_contacts():
+    return {
+        "platform": {"lead": "alice@org.com", "slack": "#platform-support"},
+        "payments": {"lead": "bob@org.com", "slack": "#payments-team"},
+        "identity": {"lead": "charlie@org.com", "slack": "#identity-team"}
+    }
+
+@comm_mcp.resource("templates/communication")
+def get_templates():
+    return {
+        "normal": {"emoji": "🔔", "prefix": "Action Required:", "follow_up": "8 hours"},
+        "high": {"emoji": "🚨", "prefix": "URGENT:", "follow_up": "2 hours"},
+        "critical": {"emoji": "🔴", "prefix": "CRITICAL:", "follow_up": "immediate"}
+    }
+
+# Tool with Context for logging/progress
+@comm_mcp.tool
+async def generate_update(topic: str, teams: list[str], urgency: str = "normal", ctx: Context = None) -> str:
+    if ctx:
+        await ctx.info(f"Generating {urgency} update for {len(teams)} teams")
+    
+    # Access resources within tool using context
+    team_data = await ctx.read_resource("teams/contacts") if ctx else {}
+    templates = await ctx.read_resource("templates/communication") if ctx else {}
+    
+    template = templates.content.get(urgency, templates.content.get("normal", {}))
+    
+    update = {
+        "slack_message": f"{template['emoji']} {template['prefix']} {topic}",
+        "affected_teams": teams,
+        "follow_up": template['follow_up']
+    }
+    
+    if ctx:
+        await ctx.info(f"Generated update for teams: {', '.join(teams)}")
+    
+    return update
+
+# Usage - Compose team update
+async def compose_team_update(topic: str, teams: list[str]):
+    async with FastMCP.client(comm_mcp) as client:
+        update = await client.call_tool("generate_update", {
+            "topic": topic,
+            "teams": teams,
+            "urgency": "normal"
+        })
+        return update.content`,
       language: "python"
     }
   ],
-  note: "Generic MCP integration patterns • Foundation for org-specific implementations"
+  note: "Org-specific agents with RAG, resource lookup, and contextual tools • Matches opening diagram"
 };

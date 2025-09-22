@@ -4,15 +4,20 @@ Each slide is now in its own file for better organization and maintainability.
 
 ## 📁 Files
 
+**Main Presentation:**
 - **`Slide1.tsx`** - Title & Setup (agenda overview)
 - **`Slide2.tsx`** - Why Agents Beyond Copilot (pain points)
 - **`Slide3.tsx`** - Lessons Learned Getting Started (best practices)
-- **`Slide4.tsx`** - Intent → Route (binary classification code)
-- **`Slide5.tsx`** - ReAct vs Tool-Select (2 tabbed code examples)
-- **`Slide6.tsx`** - MCP Tools + LangGraph (3 tabbed code examples)
-- **`Slide8.tsx`** - Implementing Org-Specific Tools (3 tabbed code examples with RAG integrated)  
-- **`Slide9.tsx`** - Pitfalls & Debugging (2 tabbed code examples)
-- **`Slide10.tsx`** - Takeaways (no code)
+- **`Slide4.tsx`** - Intent → Tool Selection (classification code)
+- **`Slide5.tsx`** - Model Context Protocol (MCP) + LangGraph (3 tabbed code examples)
+- **`Slide6.tsx`** - Implementing Org-Specific Tools (3 tabbed code examples with RAG integrated)  
+- **`Slide7.tsx`** - Pitfalls & Debugging (2 tabbed code examples)
+- **`Slide8.tsx`** - Takeaways (no code)
+- **`Slide9.tsx`** - Questions (Q&A)
+
+**Appendix:**
+- **`Slide10.tsx`** - Appendix (title slide)
+- **`Slide11.tsx`** - Agent Types (ReAct vs State Graph comparison)
 
 ## 🔧 Structure
 
